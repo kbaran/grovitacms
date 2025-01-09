@@ -18,6 +18,7 @@ export interface Config {
     coursecategories: Coursecategory;
     'course-modules': CourseModule;
     questions: Question;
+    brands: Brand;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -240,6 +241,33 @@ export interface Question {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brands".
+ */
+export interface Brand {
+  id: string;
+  title?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  brandlogo?: (string | null) | Media;
+  createdBy?: (string | null) | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -272,6 +300,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'questions';
         value: string | Question;
+      } | null)
+    | ({
+        relationTo: 'brands';
+        value: string | Brand;
       } | null);
   globalSlug?: string | null;
   user: {

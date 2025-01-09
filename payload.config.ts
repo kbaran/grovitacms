@@ -6,6 +6,7 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { v4 as uuidv4 } from 'uuid'
 import { fileURLToPath } from 'url'
+import { Brands } from '@/app/collections/Brands'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -38,14 +39,14 @@ const statusFields = [
     admin: {
       readOnly: true,
     },
-    hooks: {
-      beforeChange: ({ data }) => {
-        if (!data.token) {
-          data.token = uuidv4()
-        }
-        return data
-      },
-    },
+    // hooks: {
+    //   beforeChange: ({ data }:any) => {
+    //     if (!data.token) {
+    //       data.token = uuidv4()
+    //     }
+    //     return data
+    //   },
+    // },
   },
 ]
 
@@ -249,6 +250,7 @@ export default buildConfig({
 
     // Questions Collection
     QuestionsCollection,
+    Brands,
   ],
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

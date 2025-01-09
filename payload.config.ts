@@ -1,18 +1,19 @@
-import path from 'path';
-import { en } from 'payload/i18n/en';
-import { lexicalEditor } from '@payloadcms/richtext-lexical';
-import { mongooseAdapter } from '@payloadcms/db-mongodb';
-import { buildConfig } from 'payload';
-import sharp from 'sharp';
-import { fileURLToPath } from 'url';
-import { Brands } from '@/app/collections/Brands';
-import { Users } from '@/app/collections/Users';
-import { Courses } from '@/app/collections/Courses';
-import { CourseModules } from '@/app/collections/CourseModules';
-import { Questions } from '@/app/collections/Questions'; // Import Questions collection
+import path from 'path'
+import { en } from 'payload/i18n/en'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { buildConfig } from 'payload'
+import sharp from 'sharp'
+import { fileURLToPath } from 'url'
+import { Brands } from '@/app/collections/Brands'
+import { Users } from '@/app/collections/Users'
+import { Courses } from '@/app/collections/Courses'
+import { CourseModules } from '@/app/collections/CourseModules'
+import { Questions } from '@/app/collections/Questions' // Import Questions collection
+import { CourseCategory } from '@/app/collections/CourseCategory'
 
-const filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(filename);
+const filename = fileURLToPath(import.meta.url)
+const dirname = path.dirname(filename)
 
 const statusFields = [
   {
@@ -31,20 +32,20 @@ const statusFields = [
     hooks: {
       beforeChange: ({ data }) => {
         if (!data.token) {
-          data.token = uuidv4();
+          data.token = uuidv4()
         }
-        return data;
+        return data
       },
     },
   },
-];
+]
 
 const mediaField = {
   name: 'image',
   type: 'upload',
   relationTo: 'media',
   label: 'Image',
-};
+}
 
 export default buildConfig({
   editor: lexicalEditor(),
@@ -53,6 +54,7 @@ export default buildConfig({
     Courses, // Use the new Courses collection
     CourseModules, // Use the new CourseModules collection
     Questions, // Use the new Questions collection
+    CourseCategory,
     {
       slug: 'pages',
       admin: { useAsTitle: 'title' },
@@ -66,19 +68,19 @@ export default buildConfig({
       upload: true,
       fields: [{ name: 'text', type: 'text', label: 'Text' }],
     },
-    {
-      slug: 'coursecategories',
-      admin: { useAsTitle: 'title' },
-      fields: [
-        { name: 'title', type: 'text', required: true },
-        { name: 'description', type: 'textarea', label: 'Description' },
-        mediaField,
-        { name: 'slug', type: 'text', unique: true },
-        { name: 'isFeatured', type: 'checkbox', defaultValue: false },
-        { name: 'isPopular', type: 'checkbox', defaultValue: false },
-        ...statusFields,
-      ],
-    },
+    // {
+    //   slug: 'coursecategories',
+    //   admin: { useAsTitle: 'title' },
+    //   fields: [
+    //     { name: 'title', type: 'text', required: true },
+    //     { name: 'description', type: 'textarea', label: 'Description' },
+    //     mediaField,
+    //     { name: 'slug', type: 'text', unique: true },
+    //     { name: 'isFeatured', type: 'checkbox', defaultValue: false },
+    //     { name: 'isPopular', type: 'checkbox', defaultValue: false },
+    //     ...statusFields,
+    //   ],
+    // },
     Brands, // Added Brands collection
   ],
   secret: process.env.PAYLOAD_SECRET || '',
@@ -97,7 +99,7 @@ export default buildConfig({
     },
   },
   async onInit(payload) {
-    const existingUsers = await payload.find({ collection: 'users', limit: 1 });
+    const existingUsers = await payload.find({ collection: 'users', limit: 1 })
 
     if (existingUsers.docs.length === 0) {
       await payload.create({
@@ -106,8 +108,8 @@ export default buildConfig({
           email: 'dev@payloadcms.com',
           password: 'test',
         },
-      });
+      })
     }
   },
   sharp,
-});
+})

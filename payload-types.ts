@@ -15,9 +15,9 @@ export interface Config {
     courses: Course;
     'course-modules': CourseModule;
     questions: Question;
+    coursecategories: Coursecategory;
     pages: Page;
     media: Media;
-    coursecategories: Coursecategory;
     brands: Brand;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -120,14 +120,24 @@ export interface Course {
  */
 export interface Coursecategory {
   id: string;
-  title: string;
-  description?: string | null;
-  image?: (string | null) | Media;
-  slug?: string | null;
-  isFeatured?: boolean | null;
-  isPopular?: boolean | null;
-  active?: boolean | null;
-  token?: string | null;
+  title?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  brandlogo?: (string | null) | Media;
+  createdBy?: (string | null) | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -289,16 +299,16 @@ export interface PayloadLockedDocument {
         value: string | Question;
       } | null)
     | ({
+        relationTo: 'coursecategories';
+        value: string | Coursecategory;
+      } | null)
+    | ({
         relationTo: 'pages';
         value: string | Page;
       } | null)
     | ({
         relationTo: 'media';
         value: string | Media;
-      } | null)
-    | ({
-        relationTo: 'coursecategories';
-        value: string | Coursecategory;
       } | null)
     | ({
         relationTo: 'brands';

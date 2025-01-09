@@ -1,36 +1,11 @@
-import { CollectionConfig } from 'payload/types';
-
-const seoFields = [
-  {
-    name: 'seotitle',
-    type: 'text',
-    label: 'SEO Title',
-  },
-  {
-    name: 'seodescription',
-    type: 'textarea',
-    label: 'SEO Description',
-  },
-];
-
-const statusFields = [
-  {
-    name: 'active',
-    type: 'checkbox',
-    label: 'Active',
-    defaultValue: true,
-  },
-];
-
-const mediaField = {
-  name: 'image',
-  type: 'upload',
-  relationTo: 'media',
-  label: 'Image',
-};
+import { isAdminOrManager } from '@/access/isAdminOrManager'
+import type { CollectionConfig } from 'payload'
 
 export const CourseCategory: CollectionConfig = {
   slug: 'coursecategories',
+  access: {
+    read: isAdminOrManager,
+  },
   admin: {
     useAsTitle: 'title',
   },
@@ -38,49 +13,44 @@ export const CourseCategory: CollectionConfig = {
     {
       name: 'title',
       type: 'text',
-      required: true,
-      label: 'Category Title',
     },
     {
-      name: 'description',
-      type: 'textarea',
-      label: 'Description',
-    },
-    mediaField,
-    {
-      name: 'slug',
-      type: 'text',
-      unique: true,
-      label: 'Slug',
+      name: 'content',
+      type: 'richText',
     },
     {
-      name: 'isFeatured',
-      type: 'checkbox',
-      label: 'Featured Category',
-      defaultValue: false,
+      name: 'brandlogo',
+      type: 'upload',
+      relationTo: 'media',
+      required: false,
     },
     {
-      name: 'isPopular',
-      type: 'checkbox',
-      label: 'Popular Category',
-      defaultValue: false,
-    },
-
-    {
-        name: 'createdBy',
-        type: 'relationship',
-        relationTo: 'users',
-        access: {
-         // update: () => false,
-        },
-        admin: {
-          readOnly: true,
-          position: 'sidebar',
-        // condition: (data: { createdBy: any; }) => !!data?.createdBy,
-        },
+      name: 'createdBy',
+      type: 'relationship',
+      relationTo: 'users',
+      access: {
+        update: () => false,
       },
-
-    ...seoFields,
-    ...statusFields,
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        condition: (data) => !!data?.createdBy,
+      },
+    },
   ],
-};
+  hooks: {
+    beforeChange: [
+      ({ req, operation, data }) => {
+        if (req.user) {
+          // if (operation === 'create') {
+          //   data.updatedBy = req.user.id
+          //   data.createdBy = req.user.id
+          // } else if (operation === 'update') {
+          data.createdBy = req.user.id
+          //}
+          return data
+        }
+      },
+    ],
+  },
+}

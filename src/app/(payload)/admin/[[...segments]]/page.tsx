@@ -18,7 +18,7 @@ type Args = {
 export const generateMetadata = ({ params, searchParams }: any): Promise<Metadata> =>
   generatePageMetadata({ config, params, searchParams })
 
-const Page = ({ params, searchParams }: Args) =>
+const Page = ({ params, searchParams }: any) =>
   RootPage({ config, params, searchParams, importMap })
 
 export default Page

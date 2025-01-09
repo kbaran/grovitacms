@@ -12,12 +12,12 @@ export interface Config {
   };
   collections: {
     users: User;
-    pages: Page;
-    media: Media;
     courses: Course;
-    coursecategories: Coursecategory;
     'course-modules': CourseModule;
     questions: Question;
+    pages: Page;
+    media: Media;
+    coursecategories: Coursecategory;
     brands: Brand;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -58,6 +58,7 @@ export interface User {
   id: string;
   username: string;
   name: string;
+  role: 'siteusers' | 'accountmanager';
   image?: (string | null) | Media;
   linkedin_link?: string | null;
   twitter_link?: string | null;
@@ -95,31 +96,6 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
- */
-export interface Page {
-  id: string;
-  title?: string | null;
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "courses".
  */
 export interface Course {
@@ -150,8 +126,6 @@ export interface Coursecategory {
   slug?: string | null;
   isFeatured?: boolean | null;
   isPopular?: boolean | null;
-  seotitle?: string | null;
-  seodescription?: string | null;
   active?: boolean | null;
   token?: string | null;
   updatedAt: string;
@@ -241,6 +215,31 @@ export interface Question {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: string;
+  title?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "brands".
  */
 export interface Brand {
@@ -278,20 +277,8 @@ export interface PayloadLockedDocument {
         value: string | User;
       } | null)
     | ({
-        relationTo: 'pages';
-        value: string | Page;
-      } | null)
-    | ({
-        relationTo: 'media';
-        value: string | Media;
-      } | null)
-    | ({
         relationTo: 'courses';
         value: string | Course;
-      } | null)
-    | ({
-        relationTo: 'coursecategories';
-        value: string | Coursecategory;
       } | null)
     | ({
         relationTo: 'course-modules';
@@ -300,6 +287,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'questions';
         value: string | Question;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: string | Page;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'coursecategories';
+        value: string | Coursecategory;
       } | null)
     | ({
         relationTo: 'brands';

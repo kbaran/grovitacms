@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
-export const Brands: CollectionConfig = {
-  slug: 'brands',
+export const Institute: CollectionConfig = {
+  slug: 'institute',
   access: {
     read: () => true,
     update: () => true,
@@ -21,7 +21,7 @@ export const Brands: CollectionConfig = {
       type: 'richText',
     },
     {
-      name: 'brandlogo',
+      name: 'institutelogo',
       type: 'upload',
       relationTo: 'media',
       required: false,

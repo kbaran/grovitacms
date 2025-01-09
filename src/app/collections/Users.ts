@@ -50,6 +50,14 @@ export const Users: CollectionConfig = {
         description: 'Specify the role of the user.',
       },
     },
+    {
+      name: 'instituteId',
+      type: 'relationship',
+      relationTo: 'institute', // Ensure "institute" is a valid collection slug
+      admin: {
+        position: 'sidebar', // Ensures it always shows in the sidebar
+      },
+    },
     mediaField,
     {
       name: 'linkedin_link',

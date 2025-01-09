@@ -18,7 +18,7 @@ export interface Config {
     coursecategories: Coursecategory;
     pages: Page;
     media: Media;
-    brands: Brand;
+    institute: Institute;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -59,6 +59,7 @@ export interface User {
   username: string;
   name: string;
   role: 'siteusers' | 'accountmanager';
+  instituteId?: (string | null) | Institute;
   image?: (string | null) | Media;
   linkedin_link?: string | null;
   twitter_link?: string | null;
@@ -74,6 +75,33 @@ export interface User {
   loginAttempts?: number | null;
   lockUntil?: string | null;
   password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "institute".
+ */
+export interface Institute {
+  id: string;
+  title?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  institutelogo?: (string | null) | Media;
+  createdBy?: (string | null) | User;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -120,7 +148,7 @@ export interface Course {
  */
 export interface Coursecategory {
   id: string;
-  title?: string | null;
+  title: string;
   content?: {
     root: {
       type: string;
@@ -137,7 +165,7 @@ export interface Coursecategory {
     [k: string]: unknown;
   } | null;
   brandlogo?: (string | null) | Media;
-  createdBy?: (string | null) | User;
+  instituteId: string | Institute;
   updatedAt: string;
   createdAt: string;
 }
@@ -250,33 +278,6 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brands".
- */
-export interface Brand {
-  id: string;
-  title?: string | null;
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  brandlogo?: (string | null) | Media;
-  createdBy?: (string | null) | User;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -311,8 +312,8 @@ export interface PayloadLockedDocument {
         value: string | Media;
       } | null)
     | ({
-        relationTo: 'brands';
-        value: string | Brand;
+        relationTo: 'institute';
+        value: string | Institute;
       } | null);
   globalSlug?: string | null;
   user: {

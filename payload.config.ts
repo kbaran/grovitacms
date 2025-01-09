@@ -5,12 +5,13 @@ import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
-import { Brands } from '@/app/collections/Brands'
+
 import { Users } from '@/app/collections/Users'
 import { Courses } from '@/app/collections/Courses'
 import { CourseModules } from '@/app/collections/CourseModules'
 import { Questions } from '@/app/collections/Questions' // Import Questions collection
 import { CourseCategory } from '@/app/collections/CourseCategory'
+import { Institute } from '@/app/collections/Institute'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -81,7 +82,7 @@ export default buildConfig({
     //     ...statusFields,
     //   ],
     // },
-    Brands, // Added Brands collection
+    Institute, // Added Brands collection
   ],
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

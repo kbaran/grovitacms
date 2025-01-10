@@ -13,13 +13,14 @@ export const isAdminOrManager: Access = ({ req: { user } }) => {
   }
 
   // Restrict account managers to their own institute's data
-  if (role === 'accountmanager') {
-    //console.log('🚀 Brij  ~  file: isAdminOrManager.tsx:18 ~  o:', user)
+  if (role === 'accountmanager' || role === 'siteusers') {
+    console.log('🚀 Brij  ~  file: isAdminOrManager.tsx:18 ~  o:', user, instituteId)
 
-    if (!instituteId?.id) {
+    if (!instituteId) {
       // If instituteId is missing, deny access
       return false
     }
+    console.log('🚀 Brij  ~  file: isAdminOrManager.tsx:2 ~  o:', user, instituteId)
 
     return {
       instituteId: {

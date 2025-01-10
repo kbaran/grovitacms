@@ -166,7 +166,7 @@ export interface Coursecategory {
     [k: string]: unknown;
   } | null;
   brandlogo?: (string | null) | Media;
-  instituteId: string | Institute;
+  instituteId?: (string | null) | Institute;
   updatedAt: string;
   createdAt: string;
 }

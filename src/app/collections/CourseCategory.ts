@@ -17,6 +17,12 @@ export const CourseCategory: CollectionConfig = {
       label: 'Category Title',
     },
     {
+        name: 'slug',
+        type: 'text', // Ensure type is properly defined
+        required: true,
+        label: 'Category Slug',
+    },
+    {
       name: 'content',
       type: 'richText', // Ensure type is valid
       required: false,

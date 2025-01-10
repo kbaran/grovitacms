@@ -149,6 +149,7 @@ export interface Course {
 export interface Coursecategory {
   id: string;
   title: string;
+  slug: string;
   content?: {
     root: {
       type: string;

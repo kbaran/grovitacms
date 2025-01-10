@@ -5,18 +5,23 @@ export const isAdminOrManager: Access = ({ req: { user } }) => {
     return false; // Deny access if no user is logged in
   }
 
-  const role = user.role;
+  const { role, instituteId } = user;
 
   // Full access for admin
   if (role === 'admin') {
-    return true;
+    return true; // Allow admin full access
   }
 
   // Restrict account managers to their own institute's data
   if (role === 'accountmanager') {
+    if (!instituteId) {
+      // If instituteId is missing, deny access
+      return false;
+    }
+
     return {
-      'institute.id': {
-        equals: user.instituteId, // Ensure user has an `instituteId` property
+      instituteId: {
+        equals: instituteId, // Match the Object ID directly
       },
     };
   }

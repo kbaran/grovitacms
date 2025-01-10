@@ -1,10 +1,11 @@
-import { isAdminOrManager } from '@/access/isAdminOrManager';
-import type { CollectionConfig } from 'payload';
+import { isAdminOrManager } from '@/access/isAdminOrManager'
+import type { CollectionConfig } from 'payload'
 
 export const CourseCategory: CollectionConfig = {
   slug: 'coursecategories',
   access: {
-    read: isAdminOrManager, // Apply access control
+    read: () => true, // Apply access control
+    create: isAdminOrManager, // Apply access control
   },
   admin: {
     useAsTitle: 'title',
@@ -17,10 +18,10 @@ export const CourseCategory: CollectionConfig = {
       label: 'Category Title',
     },
     {
-        name: 'slug',
-        type: 'text', // Ensure type is properly defined
-        required: true,
-        label: 'Category Slug',
+      name: 'slug',
+      type: 'text', // Ensure type is properly defined
+      required: true,
+      label: 'Category Slug',
     },
     {
       name: 'content',
@@ -46,4 +47,4 @@ export const CourseCategory: CollectionConfig = {
       },
     },
   ],
-};
+}

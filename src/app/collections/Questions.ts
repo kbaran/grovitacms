@@ -75,13 +75,13 @@ export const Questions: CollectionConfig = {
 
           // Validate module belongs to the selected course
           if (data.module) {
-            const module = await req.payload.findByID({
+            const courseModule = await req.payload.findByID({
               collection: "course-modules",
               id: data.module,
               depth: 0,
             });
-
-            if (!module || module.course !== data.course) {
+          
+            if (!courseModule || courseModule.course !== data.course) {
               throw new Error(
                 "The selected module does not belong to the selected course."
               );

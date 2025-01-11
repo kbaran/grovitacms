@@ -20,7 +20,7 @@ export const isAdminOrManager: Access = ({ req: { user } }) => {
       // If instituteId is missing, deny access
       return false
     }
-
+    console.log("INSITUTE ID", instituteId?.id);
     return {
       instituteId: {
         equals: instituteId?.id, // Match the Object ID directly

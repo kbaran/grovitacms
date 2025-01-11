@@ -22,6 +22,76 @@ export const Questions: CollectionConfig = {
   admin: {
     useAsTitle: 'question',
   },
+  access: {
+    read: async ({ req: { user } }) => {
+      if (!user) return false;
+      const { role, instituteId } = user;
+      if (role === 'admin') return true;
+      if (role === 'accountmanager' && instituteId?.id) {
+        return {
+          instituteId: {
+            equals: instituteId.id,
+          },
+        };
+      }
+      return false;
+    },
+    create: ({ req: { user } }) => {
+      return user?.role === 'admin' || user?.role === 'accountmanager';
+    },
+    update: ({ req: { user }, doc }) => {
+      if (!user) return false;
+      if (user.role === 'admin') return true;
+      if (user.role === 'accountmanager') {
+        return doc?.createdBy?.toString() === user?.id;
+      }
+      return false;
+    },
+    delete: () => false,
+  },
+  hooks: {
+    beforeChange: [
+      async ({ data, req, operation, context }) => {
+        if (operation === 'create' || operation === 'update') {
+          if (!data.course) {
+            throw new Error('Please select a related course.');
+          }
+
+          // Use the context to access payload
+          const course = await context.payload.findByID({
+            collection: 'courses',
+            id: data.course,
+            depth: 0,
+          });
+
+          if (!course) {
+            throw new Error('The selected course does not exist.');
+          }
+
+          // Automatically set instituteId based on the course
+          if (!data.instituteId && course.instituteId) {
+            data.instituteId = course.instituteId;
+          }
+
+          // Validate module belongs to the selected course
+          if (data.module) {
+            const module = await context.payload.findByID({
+              collection: 'course-modules',
+              id: data.module,
+              depth: 0,
+            });
+
+            if (!module || module.course !== data.course) {
+              throw new Error(
+                'The selected module does not belong to the selected course.'
+              );
+            }
+          }
+        }
+        return data;
+      },
+    ],
+  },
   fields: [
     {
       name: 'course',
@@ -36,6 +106,9 @@ export const Questions: CollectionConfig = {
       relationTo: 'course-modules',
       required: false,
       label: 'Related Module',
+      admin: {
+        condition: (data, siblingData) => !!siblingData?.course,
+      },
     },
     {
       name: 'question',
@@ -78,6 +151,15 @@ export const Questions: CollectionConfig = {
       type: 'text',
       admin: {
         condition: (data) => data.type === 'text',
+      },
+    },
+    {
+      name: 'instituteId',
+      type: 'relationship',
+      relationTo: 'institute',
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
       },
     },
     ...statusFields,

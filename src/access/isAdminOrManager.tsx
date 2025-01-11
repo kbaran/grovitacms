@@ -22,7 +22,6 @@ export const isAdminOrManager: Access = ({ req: { user } }) => {
     }
     console.log('🚀 Brij  ~  file: isAdminOrManager.tsx:2 ~  o:', user, instituteId)
 
-    console.log("INSITUTE ID", instituteId?.id);
     return {
       instituteId: {
         equals: instituteId?.id, // Match the Object ID directly

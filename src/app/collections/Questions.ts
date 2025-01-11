@@ -1,15 +1,15 @@
-import { CollectionConfig } from 'payload/types';
+import { CollectionConfig } from "payload/types";
 
 const statusFields = [
   {
-    name: 'active',
-    type: 'checkbox',
-    label: 'Active',
+    name: "active",
+    type: "checkbox",
+    label: "Active",
     defaultValue: true,
   },
   {
-    name: 'token',
-    type: 'text',
+    name: "token",
+    type: "text",
     unique: true,
     admin: {
       readOnly: true,
@@ -18,16 +18,16 @@ const statusFields = [
 ];
 
 export const Questions: CollectionConfig = {
-  slug: 'questions',
+  slug: "questions",
   admin: {
-    useAsTitle: 'question',
+    useAsTitle: "question",
   },
   access: {
     read: async ({ req: { user } }) => {
       if (!user) return false;
       const { role, instituteId } = user;
-      if (role === 'admin') return true;
-      if (role === 'accountmanager' && instituteId?.id) {
+      if (role === "admin") return true;
+      if (role === "accountmanager" && instituteId?.id) {
         return {
           instituteId: {
             equals: instituteId.id,
@@ -37,12 +37,12 @@ export const Questions: CollectionConfig = {
       return false;
     },
     create: ({ req: { user } }) => {
-      return user?.role === 'admin' || user?.role === 'accountmanager';
+      return user?.role === "admin" || user?.role === "accountmanager";
     },
     update: ({ req: { user }, doc }) => {
       if (!user) return false;
-      if (user.role === 'admin') return true;
-      if (user.role === 'accountmanager') {
+      if (user.role === "admin") return true;
+      if (user.role === "accountmanager") {
         return doc?.createdBy?.toString() === user?.id;
       }
       return false;
@@ -51,21 +51,21 @@ export const Questions: CollectionConfig = {
   },
   hooks: {
     beforeChange: [
-      async ({ data, req, operation, context }) => {
-        if (operation === 'create' || operation === 'update') {
+      async ({ data, req, operation }) => {
+        if (operation === "create" || operation === "update") {
           if (!data.course) {
-            throw new Error('Please select a related course.');
+            throw new Error("Please select a related course.");
           }
 
-          // Use the context to access payload
-          const course = await context.payload.findByID({
-            collection: 'courses',
+          // Use req.payload instead of context
+          const course = await req.payload.findByID({
+            collection: "courses",
             id: data.course,
             depth: 0,
           });
 
           if (!course) {
-            throw new Error('The selected course does not exist.');
+            throw new Error("The selected course does not exist.");
           }
 
           // Automatically set instituteId based on the course
@@ -75,15 +75,15 @@ export const Questions: CollectionConfig = {
 
           // Validate module belongs to the selected course
           if (data.module) {
-            const module = await context.payload.findByID({
-              collection: 'course-modules',
+            const module = await req.payload.findByID({
+              collection: "course-modules",
               id: data.module,
               depth: 0,
             });
 
             if (!module || module.course !== data.course) {
               throw new Error(
-                'The selected module does not belong to the selected course.'
+                "The selected module does not belong to the selected course."
               );
             }
           }
@@ -94,72 +94,72 @@ export const Questions: CollectionConfig = {
   },
   fields: [
     {
-      name: 'course',
-      type: 'relationship',
-      relationTo: 'courses',
+      name: "course",
+      type: "relationship",
+      relationTo: "courses",
       required: true,
-      label: 'Related Course',
+      label: "Related Course",
     },
     {
-      name: 'module',
-      type: 'relationship',
-      relationTo: 'course-modules',
+      name: "module",
+      type: "relationship",
+      relationTo: "course-modules",
       required: false,
-      label: 'Related Module',
+      label: "Related Module",
       admin: {
         condition: (data, siblingData) => !!siblingData?.course,
       },
     },
     {
-      name: 'question',
-      type: 'text',
+      name: "question",
+      type: "text",
       required: true,
-      label: 'Question Text',
+      label: "Question Text",
     },
     {
-      name: 'type',
-      type: 'select',
+      name: "type",
+      type: "select",
       options: [
-        { label: 'Single Choice', value: 'single-choice' },
-        { label: 'Multiple Choice', value: 'multi-choice' },
-        { label: 'Text', value: 'text' },
+        { label: "Single Choice", value: "single-choice" },
+        { label: "Multiple Choice", value: "multi-choice" },
+        { label: "Text", value: "text" },
       ],
       required: true,
-      label: 'Question Type',
+      label: "Question Type",
     },
     {
-      name: 'options',
-      type: 'array',
+      name: "options",
+      type: "array",
       admin: {
         condition: (data) =>
-          data.type === 'single-choice' || data.type === 'multi-choice',
+          data.type === "single-choice" || data.type === "multi-choice",
       },
       fields: [
         {
-          name: 'option',
-          type: 'text',
+          name: "option",
+          type: "text",
           required: true,
         },
         {
-          name: 'isCorrect',
-          type: 'checkbox',
+          name: "isCorrect",
+          type: "checkbox",
         },
       ],
     },
     {
-      name: 'correctAnswer',
-      type: 'text',
+      name: "correctAnswer",
+      type: "text",
       admin: {
-        condition: (data) => data.type === 'text',
+        condition: (data) => data.type === "text",
       },
     },
     {
-      name: 'instituteId',
-      type: 'relationship',
-      relationTo: 'institute',
+      name: "instituteId",
+      type: "relationship",
+      relationTo: "institute",
       admin: {
         readOnly: true,
-        position: 'sidebar',
+        position: "sidebar",
       },
     },
     ...statusFields,

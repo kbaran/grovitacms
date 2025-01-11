@@ -1,14 +1,47 @@
-import { isAdminOrManager } from '@/access/isAdminOrManager'
-import type { CollectionConfig } from 'payload'
+import { isAdminOrManager } from '@/access/isAdminOrManager';
+import type { CollectionConfig } from 'payload';
 
 export const CourseCategory: CollectionConfig = {
   slug: 'coursecategories',
   access: {
-    read: isAdminOrManager, // Apply access control
-    create: isAdminOrManager, // Apply access control
+    // Ensure account managers only see categories of their institute
+    read: ({ req: { user } }) => {
+      if (!user) return false; // Deny access if no user is logged in
+
+      const { role, instituteId } = user;
+
+      // Admins can read all categories
+      if (role === 'admin') {
+        return true;
+      }
+
+      // Account managers can only read categories from their institute
+      if (role === 'accountmanager' && instituteId?.id) {
+        return {
+          instituteId: {
+            equals: instituteId.id, // Ensure the instituteId matches
+          },
+        };
+      }
+
+      // Deny access for all other roles
+      return false;
+    },
+    create: isAdminOrManager, // Apply access control for creation
   },
   admin: {
     useAsTitle: 'title',
+  },
+  hooks: {
+    beforeChange: [
+      ({ data, req }) => {
+        if (req.user?.role === 'accountmanager') {
+          // Automatically assign the instituteId
+          data.instituteId = req.user.instituteId?.id;
+        }
+        return data;
+      },
+    ],
   },
   fields: [
     {
@@ -43,6 +76,7 @@ export const CourseCategory: CollectionConfig = {
       required: true,
       label: 'Institute',
       admin: {
+        readOnly: true, // Prevent manual editing
         position: 'sidebar',
         condition: (_, { user }) => {
           // Only show the field if the user has an instituteId
@@ -75,4 +109,4 @@ export const CourseCategory: CollectionConfig = {
       // },
     },
   ],
-}
+};

@@ -135,6 +135,7 @@ export interface Course {
   slug?: string | null;
   isFeatured?: boolean | null;
   isPopular?: boolean | null;
+  instituteId: string | Institute;
   seotitle?: string | null;
   seodescription?: string | null;
   active?: boolean | null;
@@ -222,6 +223,7 @@ export interface CourseModule {
         id?: string | null;
       }[]
     | null;
+  instituteId: string | Institute;
   seotitle?: string | null;
   seodescription?: string | null;
   active?: boolean | null;
@@ -247,6 +249,7 @@ export interface Question {
       }[]
     | null;
   correctAnswer?: string | null;
+  instituteId?: (string | null) | Institute;
   active?: boolean | null;
   token?: string | null;
   updatedAt: string;

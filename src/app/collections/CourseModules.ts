@@ -36,11 +36,8 @@ export const CourseModules: CollectionConfig = {
     // Restrict reading to admins and account managers based on institute
     read: ({ req: { user } }) => {
       if (!user) return false;
-
       const { role, instituteId } = user;
-
       if (role === 'admin') return true;
-
       if (role === 'accountmanager' && instituteId?.id) {
         return {
           instituteId: {
@@ -48,7 +45,6 @@ export const CourseModules: CollectionConfig = {
           },
         };
       }
-
       return false;
     },
     // Allow only admins and account managers to create
@@ -58,13 +54,10 @@ export const CourseModules: CollectionConfig = {
     // Allow updates only by the creator or admin
     update: ({ req: { user }, doc }) => {
       if (!user) return false;
-
       if (user.role === 'admin') return true;
-
       if (user.role === 'accountmanager') {
         return doc?.createdBy?.toString() === user?.id;
       }
-
       return false;
     },
     // No one can delete course modules

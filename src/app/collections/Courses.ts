@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import { CollectionConfig } from 'payload/types';
 
 const seoFields = [
   {
@@ -41,17 +41,17 @@ export const Courses: CollectionConfig = {
   slug: 'courses',
   access: {
     // Restrict reading to admins and account managers based on institute
-    read: ({ req: { user } }) => {
+    read: ({ req: { user } }:any) => {
       if (!user) return false;
 
       const { role, instituteId } = user;
 
       if (role === 'admin') return true;
 
-      if (role === 'accountmanager' && instituteId) {
+      if (role === 'accountmanager' && instituteId?.id) {
         return {
           instituteId: {
-            equals: instituteId,
+            equals: instituteId.id,
           },
         };
       }
@@ -59,18 +59,18 @@ export const Courses: CollectionConfig = {
       return false;
     },
     // Allow only admins and account managers to create
-    create: ({ req: { user } }) => {
+    create: ({ req: { user } }:any) => {
       return user?.role === 'admin' || user?.role === 'accountmanager';
     },
     // Allow updates only by the creator or admin
-    update: ({ req: { user } }) => {
+    update: ({ req: { user }, doc }:any) => {
       if (!user) return false;
 
       if (user.role === 'admin') return true;
 
-      // if (user.role === 'accountmanager') {
-      //   return doc?.createdBy?.toString() === user?.id;
-      // }
+      if (user.role === 'accountmanager') {
+        return doc?.createdBy?.toString() === user?.id;
+      }
 
       return false;
     },
@@ -80,10 +80,10 @@ export const Courses: CollectionConfig = {
   admin: { useAsTitle: 'title' },
   hooks: {
     beforeChange: [
-      ({ data, req }) => {
+      ({ data, req }:any) => {
         if (!data.instituteId && req.user?.role === 'accountmanager') {
           // Automatically set the instituteId for account managers
-          data.instituteId = req.user.instituteId;
+          data.instituteId = req.user.instituteId?.id;
         }
         return data;
       },
@@ -92,12 +92,7 @@ export const Courses: CollectionConfig = {
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'summary', type: 'textarea', required: true },
-    {
-      name: 'image',
-      type: 'upload',
-      relationTo: 'media',
-      label: 'Image',
-    },
+    mediaField,
     {
       name: 'category',
       type: 'relationship',
@@ -117,29 +112,7 @@ export const Courses: CollectionConfig = {
         position: 'sidebar',
       },
     },
-    {
-      name: 'seotitle',
-      type: 'text',
-      label: 'SEO Title',
-    },
-    {
-      name: 'seodescription',
-      type: 'textarea',
-      label: 'SEO Description',
-    },
-    {
-      name: 'active',
-      type: 'checkbox',
-      label: 'Active',
-      defaultValue: true,
-    },
-    {
-      name: 'token',
-      type: 'text',
-      unique: true,
-      admin: {
-        readOnly: true,
-      },
-    },
+    ...seoFields,
+    ...statusFields,
   ],
 };

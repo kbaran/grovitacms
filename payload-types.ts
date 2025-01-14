@@ -56,15 +56,14 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: string;
-  username: string;
-  name: string;
+  username?: string | null;
+  name?: string | null;
   role: 'admin' | 'siteusers' | 'accountmanager';
   instituteId?: (string | null) | Institute;
   image?: (string | null) | Media;
   linkedin_link?: string | null;
   twitter_link?: string | null;
   active?: boolean | null;
-  token?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;

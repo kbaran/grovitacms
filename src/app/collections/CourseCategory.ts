@@ -4,45 +4,104 @@ import type { CollectionConfig } from 'payload';
 export const CourseCategory: CollectionConfig = {
   slug: 'coursecategories',
   access: {
-    // Ensure account managers only see categories of their institute
+    // Read Access
     read: ({ req: { user } }) => {
-      if (!user) return false; // Deny access if no user is logged in
+      if (!user) return false;
 
       const { role, instituteId } = user;
 
       // Admins can read all categories
-      if (role?.includes('admin')) {
+      if (role === 'admin') {
         return true;
       }
 
-      // Account managers can only read categories from their institute
-      if (role === 'accountmanager' && instituteId) {
+      // Account Managers can only read categories of their institute
+      if (role === 'accountmanager' && instituteId?.id) {
         return {
           instituteId: {
-            equals: instituteId, // Ensure the instituteId matches
+            equals: instituteId.id,
           },
         };
       }
 
-      // Deny access for all other roles
-      return false;
+      return false; // Deny access for all other roles
     },
-    create: isAdminOrManager, // Apply access control for creation
+
+    // Create Access
+    create: ({ req: { user} }) => {
+      return true
+      // if (!user) return false;
+
+      // const { role, instituteId } = user;
+      // console.log("User role value ",role)
+      // if(role == 'admin'){
+      //   return true
+      // }
+      // return  role == 'accountmanager';
+
+    },
+
+    // Update Access
+    update: ({ req: { user } }) => {
+      
+      if (!user) return false;
+
+      const { role, instituteId } = user;
+
+      // Admins can update all categories
+      if (role === 'admin') {
+        return true;
+      }
+
+      // Account Managers can update only categories of their institute
+      if (role === 'accountmanager' && instituteId?.id) {
+        return {
+          instituteId: {
+            equals: instituteId.id,
+          },
+        };
+      }
+
+      return false; // Deny access for all other roles
+    },
+
+    // Delete Access
+    delete: ({ req: { user } }) => {
+      if (!user) return false;
+
+      const { role, instituteId } = user;
+
+      // Admins can delete all categories
+      if (role === 'admin') {
+        return true;
+      }
+
+      // Account Managers can delete only categories of their institute
+      if (role === 'accountmanager' && instituteId?.id) {
+        return {
+          instituteId: {
+            equals: instituteId.id,
+          },
+        };
+      }
+
+      return false; // Deny access for all other roles
+    },
   },
   admin: {
     useAsTitle: 'title',
   },
-  hooks: {
-    beforeChange: [
-      ({ data, req }) => {
-        if (req.user?.role === 'accountmanager') {
-          // Automatically assign the instituteId
-          data.instituteId = req.user.instituteId;
-        }
-        return data;
-      },
-    ],
-  },
+  // hooks: {
+  //   beforeChange: [
+  //     ({ data, req }) => {
+  //       if (req.user?.role === 'accountmanager') {
+  //         // Automatically assign the instituteId
+  //         data.instituteId = req.user.instituteId?.id;
+  //       }
+  //       return data;
+  //     },
+  //   ],
+  // },
   fields: [
     {
       name: 'title',
@@ -76,36 +135,23 @@ export const CourseCategory: CollectionConfig = {
       required: true,
       label: 'Institute',
       admin: {
-        readOnly: true, // Prevent manual editing
+        // readOnly: true, // Prevent manual editing
         position: 'sidebar',
         condition: (_, { user }) => {
           // Only show the field if the user has an instituteId
-          return !!user?.instituteId
+          return user?.instituteId;
         },
       },
-      hooks: {
-        beforeValidate: [
-          ({ data, user }:any) => {
-            if (user?.instituteId) {
-              // Auto-fill the field with the logged-in user's instituteId
-              data.instituteId = user.instituteId
-            }
-            return data
-          },
-        ],
-      },
-      // Apply a static filter for dropdown options
-      // admin: {
-      //   components: {
-      //     Field: ({ user, field }) => ({
-      //       ...field,
-      //       where: {
-      //         id: {
-      //           equals: user?.instituteId || null, // Show only the user's instituteId
-      //         },
-      //       },
-      //     }),
-      //   },
+      // hooks: {
+      //   beforeValidate: [
+      //     ({ data, user }:any) => {
+      //       if (user?.instituteId) {
+      //         // Auto-fill the field with the logged-in user's instituteId
+      //         data.instituteId = user.instituteId;
+      //       }
+      //       return data;
+      //     },
+      //   ],
       // },
     },
   ],

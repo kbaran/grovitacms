@@ -16,10 +16,10 @@ export const CourseCategory: CollectionConfig = {
       }
 
       // Account Managers can only read categories of their institute
-      if (role === 'accountmanager' && instituteId?.id) {
+      if (role === 'accountmanager' && instituteId) {
         return {
           instituteId: {
-            equals: instituteId.id,
+            equals: instituteId,
           },
         };
       }
@@ -54,10 +54,10 @@ export const CourseCategory: CollectionConfig = {
       }
 
       // Account Managers can update only categories of their institute
-      if (role === 'accountmanager' && instituteId?.id) {
+      if (role === 'accountmanager' && instituteId) {
         return {
           instituteId: {
-            equals: instituteId.id,
+            equals: instituteId,
           },
         };
       }
@@ -77,10 +77,10 @@ export const CourseCategory: CollectionConfig = {
       }
 
       // Account Managers can delete only categories of their institute
-      if (role === 'accountmanager' && instituteId?.id) {
+      if (role === 'accountmanager' && instituteId) {
         return {
           instituteId: {
-            equals: instituteId.id,
+            equals: instituteId,
           },
         };
       }

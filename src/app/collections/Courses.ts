@@ -48,7 +48,7 @@ export const Courses: CollectionConfig = {
 
       if (role === 'admin') return true;
 
-      if (role === 'accountmanager' && instituteId?.id) {
+      if (role === 'accountmanager' && instituteId) {
         return {
           instituteId: {
             equals: instituteId.id,
@@ -83,7 +83,7 @@ export const Courses: CollectionConfig = {
       ({ data, req }:any) => {
         if (!data.instituteId && req.user?.role === 'accountmanager') {
           // Automatically set the instituteId for account managers
-          data.instituteId = req.user.instituteId?.id;
+          data.instituteId = req.user.instituteId;
         }
         return data;
       },

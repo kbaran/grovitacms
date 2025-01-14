@@ -141,7 +141,6 @@ export default buildConfig({
           name: 'Admin',
           password: 'test',
           role: 'admin', // Ensure the role is provided
-          token:"1234",
           instituteId: '1234',
         },
       })

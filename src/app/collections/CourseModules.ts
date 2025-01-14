@@ -1,4 +1,4 @@
-import { CollectionConfig } from 'payload/types';
+import type { CollectionConfig } from 'payload'
 
 const statusFields = [
   {
@@ -38,10 +38,10 @@ export const CourseModules: CollectionConfig = {
       if (!user) return false;
       const { role, instituteId } = user;
       if (role === 'admin') return true;
-      if (role === 'accountmanager' && instituteId?.id) {
+      if (role === 'accountmanager' && instituteId) {
         return {
           instituteId: {
-            equals: instituteId.id,
+            equals: instituteId,
           },
         };
       }
@@ -52,12 +52,12 @@ export const CourseModules: CollectionConfig = {
       return user?.role === 'admin' || user?.role === 'accountmanager';
     },
     // Allow updates only by the creator or admin
-    update: ({ req: { user }, doc }) => {
+    update: ({ req: { user } }) => {
       if (!user) return false;
       if (user.role === 'admin') return true;
-      if (user.role === 'accountmanager') {
-        return doc?.createdBy?.toString() === user?.id;
-      }
+      // if (user.role === 'accountmanager') {
+      //   return doc?.createdBy?.toString() === user?.id;
+      // }
       return false;
     },
     // No one can delete course modules
@@ -69,7 +69,7 @@ export const CourseModules: CollectionConfig = {
       ({ data, req }) => {
         if (!data.instituteId && req.user?.role === 'accountmanager') {
           // Automatically set the instituteId for account managers
-          data.instituteId = req.user.instituteId?.id;
+          data.instituteId = req.user.instituteId;
         }
         return data;
       },
@@ -145,7 +145,29 @@ export const CourseModules: CollectionConfig = {
         position: 'sidebar',
       },
     },
-    ...seoFields,
-    ...statusFields,
+    {
+      name: 'active',
+      type: 'checkbox',
+      label: 'Active',
+      defaultValue: true,
+    },
+    {
+      name: 'token',
+      type: 'text',
+      unique: true,
+      admin: {
+        readOnly: true,
+      },
+    },
+    {
+      name: 'seotitle',
+      type: 'text',
+      label: 'SEO Title',
+    },
+    {
+      name: 'seodescription',
+      type: 'textarea',
+      label: 'SEO Description',
+    },
   ],
 };

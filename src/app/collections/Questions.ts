@@ -1,4 +1,4 @@
-import { CollectionConfig } from "payload/types";
+import type { CollectionConfig } from 'payload'
 
 const statusFields = [
   {
@@ -27,10 +27,10 @@ export const Questions: CollectionConfig = {
       if (!user) return false;
       const { role, instituteId } = user;
       if (role === "admin") return true;
-      if (role === "accountmanager" && instituteId?.id) {
+      if (role === "accountmanager" && instituteId) {
         return {
           instituteId: {
-            equals: instituteId.id,
+            equals: instituteId,
           },
         };
       }
@@ -39,12 +39,12 @@ export const Questions: CollectionConfig = {
     create: ({ req: { user } }) => {
       return user?.role === "admin" || user?.role === "accountmanager";
     },
-    update: ({ req: { user }, doc }) => {
+    update: ({ req: { user } }) => {
       if (!user) return false;
       if (user.role === "admin") return true;
-      if (user.role === "accountmanager") {
-        return doc?.createdBy?.toString() === user?.id;
-      }
+      // if (user.role === "accountmanager") {
+      //   return doc?.createdBy?.toString() === user?.id;
+      // }
       return false;
     },
     delete: () => false,
@@ -162,6 +162,19 @@ export const Questions: CollectionConfig = {
         position: "sidebar",
       },
     },
-    ...statusFields,
+    {
+      name: "active",
+      type: "checkbox",
+      label: "Active",
+      defaultValue: true,
+    },
+    {
+      name: "token",
+      type: "text",
+      unique: true,
+      admin: {
+        readOnly: true,
+      },
+    },
   ],
 };

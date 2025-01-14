@@ -1,10 +1,3 @@
-# 🚨 Payload 3.0 is now stable. This repository has been archived.
-To set up a new project with 3.0 you can now use:
-```
-pnpx create-payload-app@latest
-```
-
-
 # Payload 3.0 Beta Demo
 
 This repo showcases a demo of the Payload 3.0 Beta running completely within Next.js.
@@ -92,3 +85,12 @@ In the `tsconfig.json` within this repo, you'll see that we have `paths` set up 
 ### Find a bug?
 
 Open an issue on this repo at `https://github.com/payloadcms/payload-3.0-demo` with as much detail as you can provide and we will tackle them as fast as we can. Let's get stable!
+
+
+AIzaSyACTx8O18Ovmk3RklUA3eT2ijLaYlY-Qhw
+AIzaSyACTx8O18Ovmk3RklUA3eT2ijLaYlY-Qhw
+AIzaSyACTx8O18Ovmk3RklUA3eT2ijLaYlY-Qhw
+
+
+https://ik.imagekit.io/0jchfbs0s/path/to/myimage.jpg
+

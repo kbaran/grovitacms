@@ -1,4 +1,4 @@
-import { CollectionConfig } from 'payload/types';
+import type { CollectionConfig } from 'payload'
 
 const seoFields = [
   {
@@ -48,10 +48,10 @@ export const Courses: CollectionConfig = {
 
       if (role === 'admin') return true;
 
-      if (role === 'accountmanager' && instituteId?.id) {
+      if (role === 'accountmanager' && instituteId) {
         return {
           instituteId: {
-            equals: instituteId.id,
+            equals: instituteId,
           },
         };
       }
@@ -63,14 +63,14 @@ export const Courses: CollectionConfig = {
       return user?.role === 'admin' || user?.role === 'accountmanager';
     },
     // Allow updates only by the creator or admin
-    update: ({ req: { user }, doc }) => {
+    update: ({ req: { user } }) => {
       if (!user) return false;
 
       if (user.role === 'admin') return true;
 
-      if (user.role === 'accountmanager') {
-        return doc?.createdBy?.toString() === user?.id;
-      }
+      // if (user.role === 'accountmanager') {
+      //   return doc?.createdBy?.toString() === user?.id;
+      // }
 
       return false;
     },
@@ -83,7 +83,7 @@ export const Courses: CollectionConfig = {
       ({ data, req }) => {
         if (!data.instituteId && req.user?.role === 'accountmanager') {
           // Automatically set the instituteId for account managers
-          data.instituteId = req.user.instituteId?.id;
+          data.instituteId = req.user.instituteId;
         }
         return data;
       },
@@ -92,7 +92,12 @@ export const Courses: CollectionConfig = {
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'summary', type: 'textarea', required: true },
-    mediaField,
+    {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Image',
+    },
     {
       name: 'category',
       type: 'relationship',
@@ -112,7 +117,29 @@ export const Courses: CollectionConfig = {
         position: 'sidebar',
       },
     },
-    ...seoFields,
-    ...statusFields,
+    {
+      name: 'seotitle',
+      type: 'text',
+      label: 'SEO Title',
+    },
+    {
+      name: 'seodescription',
+      type: 'textarea',
+      label: 'SEO Description',
+    },
+    {
+      name: 'active',
+      type: 'checkbox',
+      label: 'Active',
+      defaultValue: true,
+    },
+    {
+      name: 'token',
+      type: 'text',
+      unique: true,
+      admin: {
+        readOnly: true,
+      },
+    },
   ],
 };

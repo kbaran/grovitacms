@@ -1,29 +1,6 @@
-import { CollectionConfig } from 'payload/types';
+import type { CollectionConfig } from 'payload'
 import { v4 as uuidv4 } from 'uuid';
 
-const statusFields = [
-  {
-    name: 'active',
-    type: 'checkbox',
-    label: 'Active',
-    defaultValue: true,
-  },
-  {
-    name: 'token',
-    type: 'text',
-    unique: true,
-    admin: {
-      readOnly: true,
-    },
-  },
-];
-
-const mediaField = {
-  name: 'image',
-  type: 'upload',
-  relationTo: 'media',
-  label: 'Image',
-};
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -43,6 +20,7 @@ export const Users: CollectionConfig = {
       required: true,
       defaultValue: 'siteusers',
       options: [
+        { label: 'Site Adimn', value: 'admin' },
         { label: 'Site User', value: 'siteusers' },
         { label: 'Account Manager', value: 'accountmanager' },
       ],
@@ -58,7 +36,12 @@ export const Users: CollectionConfig = {
         position: 'sidebar', // Ensures it always shows in the sidebar
       },
     },
-    mediaField,
+    {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Image',
+    },
     {
       name: 'linkedin_link',
       type: 'text',
@@ -69,6 +52,19 @@ export const Users: CollectionConfig = {
       type: 'text',
       admin: { placeholder: 'https://twitter.com/your-profile' },
     },
-    ...statusFields,
+    {
+      name: 'active',
+      type: 'checkbox',
+      label: 'Active',
+      defaultValue: true,
+    },
+    {
+      name: 'token',
+      type: 'text',
+      unique: true,
+      admin: {
+        readOnly: true,
+      },
+    },
   ],
 };

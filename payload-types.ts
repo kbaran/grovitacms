@@ -12,13 +12,13 @@ export interface Config {
   };
   collections: {
     users: User;
+    institute: Institute;
+    coursecategories: Coursecategory;
     courses: Course;
     'course-modules': CourseModule;
     questions: Question;
-    coursecategories: Coursecategory;
     pages: Page;
     media: Media;
-    institute: Institute;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -58,7 +58,7 @@ export interface User {
   id: string;
   username: string;
   name: string;
-  role: 'siteusers' | 'accountmanager';
+  role: 'admin' | 'siteusers' | 'accountmanager';
   instituteId?: (string | null) | Institute;
   image?: (string | null) | Media;
   linkedin_link?: string | null;
@@ -124,27 +124,6 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "courses".
- */
-export interface Course {
-  id: string;
-  title: string;
-  summary: string;
-  image?: (string | null) | Media;
-  category: string | Coursecategory;
-  slug?: string | null;
-  isFeatured?: boolean | null;
-  isPopular?: boolean | null;
-  instituteId: string | Institute;
-  seotitle?: string | null;
-  seodescription?: string | null;
-  active?: boolean | null;
-  token?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "coursecategories".
  */
 export interface Coursecategory {
@@ -168,6 +147,27 @@ export interface Coursecategory {
   } | null;
   brandlogo?: (string | null) | Media;
   instituteId?: (string | null) | Institute;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses".
+ */
+export interface Course {
+  id: string;
+  title: string;
+  summary: string;
+  image?: (string | null) | Media;
+  category: string | Coursecategory;
+  slug?: string | null;
+  isFeatured?: boolean | null;
+  isPopular?: boolean | null;
+  instituteId: string | Institute;
+  seotitle?: string | null;
+  seodescription?: string | null;
+  active?: boolean | null;
+  token?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -224,10 +224,10 @@ export interface CourseModule {
       }[]
     | null;
   instituteId: string | Institute;
-  seotitle?: string | null;
-  seodescription?: string | null;
   active?: boolean | null;
   token?: string | null;
+  seotitle?: string | null;
+  seodescription?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -292,6 +292,14 @@ export interface PayloadLockedDocument {
         value: string | User;
       } | null)
     | ({
+        relationTo: 'institute';
+        value: string | Institute;
+      } | null)
+    | ({
+        relationTo: 'coursecategories';
+        value: string | Coursecategory;
+      } | null)
+    | ({
         relationTo: 'courses';
         value: string | Course;
       } | null)
@@ -304,26 +312,22 @@ export interface PayloadLockedDocument {
         value: string | Question;
       } | null)
     | ({
-        relationTo: 'coursecategories';
-        value: string | Coursecategory;
-      } | null)
-    | ({
         relationTo: 'pages';
         value: string | Page;
       } | null)
     | ({
         relationTo: 'media';
         value: string | Media;
-      } | null)
-    | ({
-        relationTo: 'institute';
-        value: string | Institute;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: string | User;
+  _lastEdited: {
+    user: {
+      relationTo: 'users';
+      value: string | User;
+    };
+    editedAt?: string | null;
   };
+  isLocked?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }

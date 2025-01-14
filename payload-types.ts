@@ -163,10 +163,10 @@ export interface Course {
   isFeatured?: boolean | null;
   isPopular?: boolean | null;
   instituteId: string | Institute;
-  seotitle?: string | null;
-  seodescription?: string | null;
   active?: boolean | null;
   token?: string | null;
+  seotitle?: string | null;
+  seodescription?: string | null;
   updatedAt: string;
   createdAt: string;
 }

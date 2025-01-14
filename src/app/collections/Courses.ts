@@ -92,7 +92,12 @@ export const Courses: CollectionConfig = {
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'summary', type: 'textarea', required: true },
-    mediaField,
+    {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Image',
+    },
     {
       name: 'category',
       type: 'relationship',
@@ -112,7 +117,29 @@ export const Courses: CollectionConfig = {
         position: 'sidebar',
       },
     },
-    ...seoFields,
-    ...statusFields,
+    {
+      name: 'active',
+      type: 'checkbox',
+      label: 'Active',
+      defaultValue: true,
+    },
+    {
+      name: 'token',
+      type: 'text',
+      unique: true,
+      admin: {
+        readOnly: true,
+      },
+    },
+    {
+      name: 'seotitle',
+      type: 'text',
+      label: 'SEO Title',
+    },
+    {
+      name: 'seodescription',
+      type: 'textarea',
+      label: 'SEO Description',
+    },
   ],
 };

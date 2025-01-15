@@ -1,76 +1,79 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload';
 
-const statusFields = [
-  {
-    name: 'active',
-    type: 'checkbox',
-    label: 'Active',
-    defaultValue: true,
-  },
-  {
-    name: 'token',
-    type: 'text',
-    unique: true,
-    admin: {
-      readOnly: true,
-    },
-  },
-];
-
+// Reusable SEO Fields
 const seoFields = [
   {
     name: 'seotitle',
     type: 'text',
     label: 'SEO Title',
+    required: true,
   },
   {
     name: 'seodescription',
     type: 'textarea',
     label: 'SEO Description',
+    required: true,
   },
 ];
+
+type User = {
+  role: 'admin' | 'accountmanager';
+  instituteId?: string | { id: string };
+};
 
 export const CourseModules: CollectionConfig = {
   slug: 'course-modules',
   access: {
-    // Restrict reading to admins and account managers based on institute
-    read: ({ req: { user } }) => {
+    read: ({ req: { user } }: { req: { user?: User } }) => {
       if (!user) return false;
+
       const { role, instituteId } = user;
+
       if (role === 'admin') return true;
+
       if (role === 'accountmanager' && instituteId) {
-        return {
-          instituteId: {
-            equals: instituteId,
-          },
-        };
+        const instituteIdValue =
+          typeof instituteId === 'string'
+            ? instituteId
+            : (instituteId as { id: string })?.id;
+
+        if (instituteIdValue) {
+          return {
+            instituteId: {
+              equals: instituteIdValue,
+            },
+          };
+        }
       }
+
       return false;
     },
-    // Allow only admins and account managers to create
-    create: ({ req: { user } }) => {
+    create: ({ req: { user } }: { req: { user?: User } }) => {
       return user?.role === 'admin' || user?.role === 'accountmanager';
     },
-    // Allow updates only by the creator or admin
-    update: ({ req: { user } }) => {
+    update: ({ req: { user } }: { req: { user?: User } }) => {
       if (!user) return false;
       if (user.role === 'admin') return true;
-      // if (user.role === 'accountmanager') {
-      //   return doc?.createdBy?.toString() === user?.id;
-      // }
       return false;
     },
-    // No one can delete course modules
     delete: () => false,
   },
   admin: { useAsTitle: 'module' },
   hooks: {
-    beforeChange: [
-      ({ data, req }) => {
-        if (!data.instituteId && req.user?.role === 'accountmanager') {
-          // Automatically set the instituteId for account managers
-          data.instituteId = req.user.instituteId;
+    beforeValidate: [
+      ({ data, req }: { data: any; req: { user?: User } }) => {
+        data ??= {};
+
+        if (req.user?.role === 'accountmanager') {
+          if (!req.user.instituteId) {
+            throw new Error('Account managers must have an associated institute.');
+          }
+          data.instituteId =
+            typeof req.user.instituteId === 'string'
+              ? req.user.instituteId
+              : (req.user.instituteId as { id: string })?.id ?? data.instituteId;
         }
+
         return data;
       },
     ],
@@ -99,75 +102,34 @@ export const CourseModules: CollectionConfig = {
         {
           name: 'content',
           type: 'richText',
-          label: 'Content',
-        },
-        {
-          name: 'video',
-          type: 'text',
-          label: 'Video URL',
-          admin: {
-            placeholder: 'https://example.com/video',
-          },
-        },
-        {
-          name: 'subtopics',
-          type: 'array',
-          fields: [
-            {
-              name: 'title',
-              type: 'text',
-              required: true,
-            },
-            {
-              name: 'content',
-              type: 'richText',
-              label: 'Subtopic Content',
-            },
-            {
-              name: 'video',
-              type: 'text',
-              label: 'Subtopic Video URL',
-              admin: {
-                placeholder: 'https://example.com/video',
-              },
-            },
-          ],
         },
       ],
-    },
-    {
-      name: 'instituteId',
-      type: 'relationship',
-      relationTo: 'institute', // Ensure "institute" is a valid collection slug
-      required: true,
-      admin: {
-        readOnly: true, // Prevent manual editing
-        position: 'sidebar',
-      },
     },
     {
       name: 'active',
       type: 'checkbox',
       label: 'Active',
       defaultValue: true,
-    },
+    },  
     {
-      name: 'token',
-      type: 'text',
-      unique: true,
+      name: 'sequence',
+      type: 'number', // Added sequence field
+      label: 'Sequence',
+      required: true,
       admin: {
-        readOnly: true,
+        description: 'Set the order for rendering this module on the front-end. Lower numbers will appear first.',
       },
     },
     {
-      name: 'seotitle',
-      type: 'text',
-      label: 'SEO Title',
+      name: 'instituteId',
+      type: 'relationship',
+      relationTo: 'institute',
+      required: true,
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+      },
     },
-    {
-      name: 'seodescription',
-      type: 'textarea',
-      label: 'SEO Description',
-    },
+    ...seoFields, // Adding SEO fields here
   ],
 };

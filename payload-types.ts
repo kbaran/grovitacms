@@ -254,37 +254,14 @@ export interface CourseModule {
           };
           [k: string]: unknown;
         } | null;
-        video?: string | null;
-        subtopics?:
-          | {
-              title: string;
-              content?: {
-                root: {
-                  type: string;
-                  children: {
-                    type: string;
-                    version: number;
-                    [k: string]: unknown;
-                  }[];
-                  direction: ('ltr' | 'rtl') | null;
-                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                  indent: number;
-                  version: number;
-                };
-                [k: string]: unknown;
-              } | null;
-              video?: string | null;
-              id?: string | null;
-            }[]
-          | null;
         id?: string | null;
       }[]
     | null;
-  instituteId: string | Institute;
   active?: boolean | null;
-  token?: string | null;
-  seotitle?: string | null;
-  seodescription?: string | null;
+  sequence: number;
+  instituteId: string | Institute;
+  seotitle: string;
+  seodescription: string;
   updatedAt: string;
   createdAt: string;
 }

@@ -129,7 +129,7 @@ export const Courses: CollectionConfig = {
     },
     {
       name: 'course_content',
-      type: 'array', // This is a repeatable array
+      type: 'array',
       label: 'Course Content',
       fields: [
         {
@@ -140,7 +140,7 @@ export const Courses: CollectionConfig = {
         },
         {
           name: 'subtopics',
-          type: 'array', // Nested array for subtopics
+          type: 'array',
           label: 'Subtopics',
           fields: [
             {
@@ -162,20 +162,26 @@ export const Courses: CollectionConfig = {
     },
     {
       name: 'usp',
-      type: 'array', // Repeatable field for USPs
+      type: 'array', // Updated USP field
       label: 'Unique Selling Points (USPs)',
       fields: [
         {
-          name: 'usp_item',
+          name: 'text',
           type: 'text',
           required: true,
-          label: 'USP Item (One Liner)',
+          label: 'USP Main Text',
+        },
+        {
+          name: 'subText',
+          type: 'text',
+          required: false,
+          label: 'USP Sub Text',
         },
       ],
     },
     {
       name: 'learnings',
-      type: 'array', // Repeatable field for Learnings
+      type: 'array',
       label: 'What You Will Learn',
       fields: [
         {
@@ -188,7 +194,7 @@ export const Courses: CollectionConfig = {
     },
     {
       name: 'skills',
-      type: 'array', // Repeatable field for Skills
+      type: 'array',
       label: 'Skills Gained',
       fields: [
         {

@@ -198,7 +198,8 @@ export interface Course {
   course_content_pdf?: (string | null) | Media;
   usp?:
     | {
-        usp_item: string;
+        text: string;
+        subText?: string | null;
         id?: string | null;
       }[]
     | null;

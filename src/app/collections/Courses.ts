@@ -33,7 +33,7 @@ export const Courses: CollectionConfig = {
       if (user.role === 'admin') return true;
 
       if (user.role === 'accountmanager') {
-        return doc?.createdBy?.toString() === user?.id;
+        return true;
       }
 
       return false;

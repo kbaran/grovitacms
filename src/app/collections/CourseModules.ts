@@ -1,4 +1,4 @@
-import type { CollectionConfig, Field } from 'payload';
+import type { CollectionConfig, Access, AccessArgs } from 'payload';
 
 // Reusable SEO Fields with Proper Type
 const seoFields: Field[] = [
@@ -22,6 +22,7 @@ const seoFields: Field[] = [
   },
 ];
 
+// Define the User type
 type User = {
   role: 'admin' | 'accountmanager';
   instituteId?: string | { id: string };
@@ -30,7 +31,9 @@ type User = {
 export const CourseModules: CollectionConfig = {
   slug: 'course-modules',
   access: {
-    read: (({ req: { user } }) => {
+    read: ({ req }: AccessArgs) => {
+      const user = req.user as User; // Explicitly cast req.user
+
       if (!user) return false;
 
       const { role, instituteId } = user;
@@ -53,15 +56,18 @@ export const CourseModules: CollectionConfig = {
       }
 
       return false;
-    }) as Access,
-    create: (({ req: { user } }) => {
+    },
+    create: ({ req }: AccessArgs) => {
+      const user = req.user as User;
       return user?.role === 'admin' || user?.role === 'accountmanager';
-    }) as Access,
-    update: (({ req: { user } }) => {
+    },
+    update: ({ req }: AccessArgs) => {
+      const user = req.user as User;
+
       if (!user) return false;
       if (user.role === 'admin') return true;
       return false;
-    }) as Access,
+    },
     delete: () => false,
   },
   admin: { useAsTitle: 'module' },

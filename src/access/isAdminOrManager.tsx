@@ -18,6 +18,7 @@ export const isAdminOrManager: Access = ({ req: { user } }) => {
 
     if (!instituteId) {
       // If instituteId is missing, deny access
+      console.log("🚀 ~ file: isAdminOrManager.tsx ~ instituteId", instituteId);
       return false
     }
     console.log('🚀 Brij  ~  file: isAdminOrManager.tsx:2 ~  o:', user, instituteId)

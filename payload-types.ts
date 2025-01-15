@@ -129,6 +129,8 @@ export interface Coursecategory {
   id: string;
   title: string;
   slug: string;
+  seotitle: string;
+  seodescription: string;
   content?: {
     root: {
       type: string;
@@ -145,6 +147,10 @@ export interface Coursecategory {
     [k: string]: unknown;
   } | null;
   brandlogo?: (string | null) | Media;
+  categorybanner?: (string | null) | Media;
+  active?: boolean | null;
+  popular?: boolean | null;
+  upcoming?: boolean | null;
   instituteId?: (string | null) | Institute;
   updatedAt: string;
   createdAt: string;
@@ -156,17 +162,69 @@ export interface Coursecategory {
 export interface Course {
   id: string;
   title: string;
-  summary: string;
+  summary: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
   image?: (string | null) | Media;
   category: string | Coursecategory;
   slug?: string | null;
   isFeatured?: boolean | null;
   isPopular?: boolean | null;
   instituteId: string | Institute;
+  course_content?:
+    | {
+        topic: string;
+        subtopics?:
+          | {
+              subtopic: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  course_content_pdf?: (string | null) | Media;
+  usp?:
+    | {
+        usp_item: string;
+        id?: string | null;
+      }[]
+    | null;
+  learnings?:
+    | {
+        learning_item: string;
+        id?: string | null;
+      }[]
+    | null;
+  skills?:
+    | {
+        skill_item: string;
+        id?: string | null;
+      }[]
+    | null;
   active?: boolean | null;
+  upcoming?: boolean | null;
   token?: string | null;
   seotitle?: string | null;
   seodescription?: string | null;
+  completion_time?: string | null;
+  price_ind?: string | null;
+  price_usd?: string | null;
+  youtube_url?: string | null;
+  bot_url?: string | null;
+  prioritysequence?: string | null;
   updatedAt: string;
   createdAt: string;
 }

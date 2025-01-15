@@ -86,6 +86,18 @@ export const CourseCategory: CollectionConfig = {
       label: 'Category Slug',
     },
     {
+      name: 'seotitle',
+      type: 'text',
+      required: true,
+      label: 'SEO Title',
+    },   
+    {
+      name: 'seodescription',
+      type: 'text',
+      required: true,
+      label: 'SEO Description',
+    },       
+    {
       name: 'content',
       type: 'richText',
       required: false,
@@ -98,6 +110,31 @@ export const CourseCategory: CollectionConfig = {
       required: false,
       label: 'Brand Logo',
     },
+    {
+      name: 'categorybanner',
+      type: 'upload',
+      relationTo: 'media',
+      required: false,
+      label: 'CategoryBanner',
+    }, 
+    {
+      name: 'active',
+      type: 'checkbox',
+      label: 'Active',
+      defaultValue: true,
+    },  
+    {
+      name: 'popular',
+      type: 'checkbox',
+      label: 'Popular',
+      defaultValue: false,
+    },    
+    {
+      name: 'upcoming',
+      type: 'checkbox',
+      label: 'Upcoming',
+      defaultValue: false,
+    },             
     {
       name: 'instituteId',
       type: 'relationship',

@@ -1,39 +1,30 @@
-import type { CollectionConfig } from 'payload'
-
-const statusFields = [
-  {
-    name: "active",
-    type: "checkbox",
-    label: "Active",
-    defaultValue: true,
-  },
-  {
-    name: "token",
-    type: "text",
-    unique: true,
-    admin: {
-      readOnly: true,
-    },
-  },
-];
+import type { CollectionConfig } from 'payload';
 
 export const Questions: CollectionConfig = {
   slug: "questions",
-  admin: {
-    useAsTitle: "question",
-  },
   access: {
-    read: async ({ req: { user } }) => {
+    read: ({ req: { user } }) => {
       if (!user) return false;
+
       const { role, instituteId } = user;
-      if (role === "admin") return true;
-      if (role === "accountmanager" && instituteId) {
-        return {
-          instituteId: {
-            equals: instituteId,
-          },
-        };
+
+      if (role === "admin") {
+        return true;
       }
+
+      if (role === "accountmanager" && instituteId) {
+        const instituteIdValue =
+          typeof instituteId === "string" ? instituteId : instituteId.id;
+
+        if (instituteIdValue) {
+          return {
+            instituteId: {
+              equals: instituteIdValue,
+            },
+          };
+        }
+      }
+
       return false;
     },
     create: ({ req: { user } }) => {
@@ -42,52 +33,49 @@ export const Questions: CollectionConfig = {
     update: ({ req: { user } }) => {
       if (!user) return false;
       if (user.role === "admin") return true;
-      // if (user.role === "accountmanager") {
-      //   return doc?.createdBy?.toString() === user?.id;
-      // }
       return false;
     },
     delete: () => false,
   },
+  admin: {
+    useAsTitle: "question",
+  },
   hooks: {
-    beforeChange: [
-      async ({ data, req, operation }) => {
-        if (operation === "create" || operation === "update") {
-          if (!data.course) {
-            throw new Error("Please select a related course.");
-          }
+    beforeValidate: [
+      ({ data, req }) => {
+        console.log("Before Validate - Incoming Data:", data);
+        console.log("Logged-In User:", req.user);
 
-          // Use req.payload instead of context
-          const course = await req.payload.findByID({
-            collection: "courses",
-            id: data.course,
-            depth: 0,
-          });
+        // Ensure data exists
+        data ??= {};
 
-          if (!course) {
-            throw new Error("The selected course does not exist.");
+        if (req.user?.role === "accountmanager") {
+          if (!req.user.instituteId) {
+            throw new Error("Account managers must have an associated institute.");
           }
-
-          // Automatically set instituteId based on the course
-          if (!data.instituteId && course.instituteId) {
-            data.instituteId = course.instituteId;
-          }
-
-          // Validate module belongs to the selected course
-          if (data.module) {
-            const courseModule = await req.payload.findByID({
-              collection: "course-modules",
-              id: data.module,
-              depth: 0,
-            });
-          
-            if (!courseModule || courseModule.course !== data.course) {
-              throw new Error(
-                "The selected module does not belong to the selected course."
-              );
-            }
-          }
+          data.instituteId =
+            typeof req.user.instituteId === "string"
+              ? req.user.instituteId
+              : req.user.instituteId?.id;
         }
+
+        return data;
+      },
+    ],
+    beforeChange: [
+      ({ data, req }) => {
+        console.log("Before Change - Modified Data:", data);
+
+        // Ensure data exists
+        data ??= {};
+
+        if (req.user?.role === "accountmanager") {
+          data.instituteId =
+            typeof req.user.instituteId === "string"
+              ? req.user.instituteId
+              : req.user.instituteId?.id || data.instituteId;
+        }
+
         return data;
       },
     ],
@@ -157,9 +145,31 @@ export const Questions: CollectionConfig = {
       name: "instituteId",
       type: "relationship",
       relationTo: "institute",
+      required: true,
+      label: "Institute",
       admin: {
-        readOnly: true,
         position: "sidebar",
+        condition: (_, { user }) => {
+          return !!user?.instituteId || user?.role === "admin";
+        },
+      },
+      hooks: {
+        beforeValidate: [
+          ({ data, req }) => {
+            console.log("Before Validate for InstituteId - Questions:", data);
+
+            data ??= {};
+
+            if (req.user?.role === "accountmanager") {
+              data.instituteId =
+                typeof req.user.instituteId === "string"
+                  ? req.user.instituteId
+                  : req.user.instituteId?.id || data.instituteId;
+            }
+
+            return data;
+          },
+        ],
       },
     },
     {
@@ -167,14 +177,6 @@ export const Questions: CollectionConfig = {
       type: "checkbox",
       label: "Active",
       defaultValue: true,
-    },
-    {
-      name: "token",
-      type: "text",
-      unique: true,
-      admin: {
-        readOnly: true,
-      },
     },
   ],
 };

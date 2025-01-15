@@ -285,7 +285,6 @@ export interface Question {
   correctAnswer?: string | null;
   instituteId?: (string | null) | Institute;
   active?: boolean | null;
-  token?: string | null;
   updatedAt: string;
   createdAt: string;
 }

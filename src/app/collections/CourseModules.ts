@@ -1,30 +1,36 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, Field } from 'payload';
 
-// Reusable SEO Fields
-const seoFields = [
+// Reusable SEO Fields with Proper Type
+const seoFields: Field[] = [
   {
     name: 'seotitle',
     type: 'text',
     label: 'SEO Title',
     required: true,
+    admin: {
+      placeholder: 'Enter a concise SEO title',
+    },
   },
   {
     name: 'seodescription',
     type: 'textarea',
     label: 'SEO Description',
     required: true,
+    admin: {
+      placeholder: 'Write a short SEO-friendly description',
+    },
   },
 ];
 
 type User = {
   role: 'admin' | 'accountmanager';
   instituteId?: string | { id: string };
-};
+} | null;
 
 export const CourseModules: CollectionConfig = {
   slug: 'course-modules',
   access: {
-    read: ({ req: { user } }: { req: { user?: User } }) => {
+    read: (({ req: { user } }) => {
       if (!user) return false;
 
       const { role, instituteId } = user;
@@ -47,21 +53,21 @@ export const CourseModules: CollectionConfig = {
       }
 
       return false;
-    },
-    create: ({ req: { user } }: { req: { user?: User } }) => {
+    }) as Access,
+    create: (({ req: { user } }) => {
       return user?.role === 'admin' || user?.role === 'accountmanager';
-    },
-    update: ({ req: { user } }: { req: { user?: User } }) => {
+    }) as Access,
+    update: (({ req: { user } }) => {
       if (!user) return false;
       if (user.role === 'admin') return true;
       return false;
-    },
+    }) as Access,
     delete: () => false,
   },
   admin: { useAsTitle: 'module' },
   hooks: {
     beforeValidate: [
-      ({ data, req }: { data: any; req: { user?: User } }) => {
+      ({ data, req }: { data: any; req: { user: User } }) => {
         data ??= {};
 
         if (req.user?.role === 'accountmanager') {
@@ -110,7 +116,7 @@ export const CourseModules: CollectionConfig = {
       type: 'checkbox',
       label: 'Active',
       defaultValue: true,
-    },  
+    },
     {
       name: 'sequence',
       type: 'number', // Added sequence field

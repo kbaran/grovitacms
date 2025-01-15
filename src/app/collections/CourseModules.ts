@@ -1,38 +1,34 @@
-import type { CollectionConfig, Access, AccessArgs } from 'payload';
+import type { CollectionConfig, BeforeValidateHook } from 'payload';
 
-// Reusable SEO Fields with Proper Type
-const seoFields: Field[] = [
-  {
-    name: 'seotitle',
-    type: 'text',
-    label: 'SEO Title',
-    required: true,
-    admin: {
-      placeholder: 'Enter a concise SEO title',
-    },
-  },
-  {
-    name: 'seodescription',
-    type: 'textarea',
-    label: 'SEO Description',
-    required: true,
-    admin: {
-      placeholder: 'Write a short SEO-friendly description',
-    },
-  },
-];
-
-// Define the User type
 type User = {
   role: 'admin' | 'accountmanager';
   instituteId?: string | { id: string };
 } | null;
 
+// Define a generic hook handler for instituteId assignment
+const handleInstituteId: BeforeValidateHook<any> = async ({ data, req }) => {
+  data ??= {};
+
+  const user = req.user as User;
+
+  if (user?.role === 'accountmanager') {
+    if (!user.instituteId) {
+      throw new Error('Account managers must have an associated institute.');
+    }
+    data.instituteId =
+      typeof user.instituteId === 'string'
+        ? user.instituteId
+        : (user.instituteId as { id: string })?.id ?? data.instituteId;
+  }
+
+  return data;
+};
+
 export const CourseModules: CollectionConfig = {
   slug: 'course-modules',
   access: {
-    read: ({ req }: AccessArgs) => {
-      const user = req.user as User; // Explicitly cast req.user
+    read: ({ req }) => {
+      const user = req.user as User;
 
       if (!user) return false;
 
@@ -57,11 +53,11 @@ export const CourseModules: CollectionConfig = {
 
       return false;
     },
-    create: ({ req }: AccessArgs) => {
+    create: ({ req }) => {
       const user = req.user as User;
       return user?.role === 'admin' || user?.role === 'accountmanager';
     },
-    update: ({ req }: AccessArgs) => {
+    update: ({ req }) => {
       const user = req.user as User;
 
       if (!user) return false;
@@ -72,23 +68,7 @@ export const CourseModules: CollectionConfig = {
   },
   admin: { useAsTitle: 'module' },
   hooks: {
-    beforeValidate: [
-      ({ data, req }: { data: any; req: { user: User } }) => {
-        data ??= {};
-
-        if (req.user?.role === 'accountmanager') {
-          if (!req.user.instituteId) {
-            throw new Error('Account managers must have an associated institute.');
-          }
-          data.instituteId =
-            typeof req.user.instituteId === 'string'
-              ? req.user.instituteId
-              : (req.user.instituteId as { id: string })?.id ?? data.instituteId;
-        }
-
-        return data;
-      },
-    ],
+    beforeValidate: [handleInstituteId],
   },
   fields: [
     {
@@ -142,6 +122,23 @@ export const CourseModules: CollectionConfig = {
         position: 'sidebar',
       },
     },
-    ...seoFields, // Adding SEO fields here
+    {
+      name: 'seotitle', // SEO Title added directly
+      type: 'text',
+      label: 'SEO Title',
+      required: true,
+      admin: {
+        placeholder: 'Enter a concise SEO title',
+      },
+    },
+    {
+      name: 'seodescription', // SEO Description added directly
+      type: 'textarea',
+      label: 'SEO Description',
+      required: true,
+      admin: {
+        placeholder: 'Write a short SEO-friendly description',
+      },
+    },
   ],
 };

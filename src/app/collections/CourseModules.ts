@@ -1,4 +1,4 @@
-import type { CollectionConfig, BeforeValidateHook } from 'payload';
+import type { CollectionConfig, PayloadRequest } from 'payload';
 
 type User = {
   role: 'admin' | 'accountmanager';
@@ -6,7 +6,13 @@ type User = {
 } | null;
 
 // Define a generic hook handler for instituteId assignment
-const handleInstituteId: BeforeValidateHook<any> = async ({ data, req }) => {
+const handleInstituteId = async ({
+  data,
+  req,
+}: {
+  data?: any; // `data` is optional in Payload hooks
+  req: PayloadRequest;
+}) => {
   data ??= {};
 
   const user = req.user as User;
@@ -68,7 +74,7 @@ export const CourseModules: CollectionConfig = {
   },
   admin: { useAsTitle: 'module' },
   hooks: {
-    beforeValidate: [handleInstituteId],
+    beforeValidate: [handleInstituteId], // Correctly typed hook handler
   },
   fields: [
     {

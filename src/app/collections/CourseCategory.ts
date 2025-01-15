@@ -13,12 +13,17 @@ export const CourseCategory: CollectionConfig = {
         return true;
       }
 
-      if (role === 'accountmanager' && instituteId?.id) {
-        return {
-          instituteId: {
-            equals: instituteId.id,
-          },
-        };
+      if (role === 'accountmanager' && instituteId) {
+        // Check if instituteId is an object or a string
+        const instituteIdValue = typeof instituteId === 'string' ? instituteId : instituteId.id;
+
+        if (instituteIdValue) {
+          return {
+            instituteId: {
+              equals: instituteIdValue,
+            },
+          };
+        }
       }
 
       return false;
@@ -38,7 +43,10 @@ export const CourseCategory: CollectionConfig = {
           if (!req.user.instituteId) {
             throw new Error('Account managers must have an associated institute.');
           }
-          data.instituteId = req.user.instituteId;
+          // Ensure proper type handling
+          data.instituteId = typeof req.user.instituteId === 'string'
+            ? req.user.instituteId
+            : req.user.instituteId?.id;
         }
 
         return data;
@@ -49,7 +57,10 @@ export const CourseCategory: CollectionConfig = {
         console.log('Before Change - Modified Data:', data);
 
         if (req.user?.role === 'accountmanager') {
-          data.instituteId = req.user.instituteId?.id || data.instituteId;
+          // Ensure proper type handling
+          data.instituteId = typeof req.user.instituteId === 'string'
+            ? req.user.instituteId
+            : req.user.instituteId?.id || data.instituteId;
         }
 
         return data;
@@ -98,7 +109,10 @@ export const CourseCategory: CollectionConfig = {
         beforeValidate: [
           ({ data, req }) => {
             if (req.user?.role === 'accountmanager') {
-              data.instituteId = req.user.instituteId || data.instituteId;
+              // Ensure proper type handling
+              data.instituteId = typeof req.user.instituteId === 'string'
+                ? req.user.instituteId
+                : req.user.instituteId?.id || data.instituteId;
             }
             return data;
           },

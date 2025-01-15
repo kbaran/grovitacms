@@ -12,11 +12,15 @@ export const Courses: CollectionConfig = {
       if (role === 'admin') return true;
 
       if (role === 'accountmanager' && instituteId) {
-        return {
-          instituteId: {
-            equals: instituteId.id,
-          },
-        };
+        const instituteIdValue = typeof instituteId === 'string' ? instituteId : instituteId.id;
+
+        if (instituteIdValue) {
+          return {
+            instituteId: {
+              equals: instituteIdValue,
+            },
+          };
+        }
       }
 
       return false;
@@ -47,13 +51,20 @@ export const Courses: CollectionConfig = {
         console.log('Courses: Before Validate - Incoming Data:', data);
         console.log('Logged-In User:', req.user);
 
-        // Auto-assign `instituteId` for account managers
+        // Ensure data exists
+        data ??= {}; // Initialize data if undefined
+
         if (req.user?.role === 'accountmanager') {
           if (!req.user.instituteId) {
             throw new Error('Account managers must have an associated institute.');
           }
-          data.instituteId = req.user.instituteId.id || data.instituteId; // Assign proper ID
+          // Safely assign instituteId
+          data.instituteId =
+            typeof req.user.instituteId === 'string'
+              ? req.user.instituteId
+              : req.user.instituteId?.id;
         }
+
         return data;
       },
     ],
@@ -61,9 +72,15 @@ export const Courses: CollectionConfig = {
       ({ data, req }) => {
         console.log('Courses: Before Change - Modified Data:', data);
 
-        // Ensure `instituteId` is set for account managers
+        // Ensure data exists
+        data ??= {}; // Initialize data if undefined
+
         if (req.user?.role === 'accountmanager') {
-          data.instituteId = req.user.instituteId?.id || data.instituteId;
+          // Safely assign instituteId
+          data.instituteId =
+            typeof req.user.instituteId === 'string'
+              ? req.user.instituteId
+              : req.user.instituteId?.id || data.instituteId;
         }
 
         return data;
@@ -100,8 +117,14 @@ export const Courses: CollectionConfig = {
       hooks: {
         beforeValidate: [
           ({ data, req }) => {
+            // Ensure data exists
+            data ??= {};
+
             if (req.user?.role === 'accountmanager') {
-              data.instituteId = req.user.instituteId?.id || data.instituteId; // Auto-assign `instituteId`
+              data.instituteId =
+                typeof req.user.instituteId === 'string'
+                  ? req.user.instituteId
+                  : req.user.instituteId?.id || data.instituteId;
             }
             return data;
           },

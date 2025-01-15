@@ -14,7 +14,6 @@ export const CourseCategory: CollectionConfig = {
       }
 
       if (role === 'accountmanager' && instituteId) {
-        // Check if instituteId is an object or a string
         const instituteIdValue = typeof instituteId === 'string' ? instituteId : instituteId.id;
 
         if (instituteIdValue) {
@@ -39,14 +38,17 @@ export const CourseCategory: CollectionConfig = {
         console.log('Before Validate - Incoming Data:', data);
         console.log('Logged-In User:', req.user);
 
+        // Ensure data exists
+        data ??= {};
+
         if (req.user?.role === 'accountmanager') {
           if (!req.user.instituteId) {
             throw new Error('Account managers must have an associated institute.');
           }
-          // Ensure proper type handling
-          data.instituteId = typeof req.user.instituteId === 'string'
-            ? req.user.instituteId
-            : req.user.instituteId?.id;
+          data.instituteId =
+            typeof req.user.instituteId === 'string'
+              ? req.user.instituteId
+              : req.user.instituteId?.id;
         }
 
         return data;
@@ -56,11 +58,14 @@ export const CourseCategory: CollectionConfig = {
       ({ data, req }) => {
         console.log('Before Change - Modified Data:', data);
 
+        // Ensure data exists
+        data ??= {};
+
         if (req.user?.role === 'accountmanager') {
-          // Ensure proper type handling
-          data.instituteId = typeof req.user.instituteId === 'string'
-            ? req.user.instituteId
-            : req.user.instituteId?.id || data.instituteId;
+          data.instituteId =
+            typeof req.user.instituteId === 'string'
+              ? req.user.instituteId
+              : req.user.instituteId?.id || data.instituteId;
         }
 
         return data;
@@ -108,11 +113,13 @@ export const CourseCategory: CollectionConfig = {
       hooks: {
         beforeValidate: [
           ({ data, req }) => {
+            data ??= {}; // Ensure data exists
+
             if (req.user?.role === 'accountmanager') {
-              // Ensure proper type handling
-              data.instituteId = typeof req.user.instituteId === 'string'
-                ? req.user.instituteId
-                : req.user.instituteId?.id || data.instituteId;
+              data.instituteId =
+                typeof req.user.instituteId === 'string'
+                  ? req.user.instituteId
+                  : req.user.instituteId?.id || data.instituteId;
             }
             return data;
           },

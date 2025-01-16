@@ -3,15 +3,18 @@ import type { CollectionConfig } from 'payload';
 export const Courses: CollectionConfig = {
   slug: 'courses',
   access: {
-    read: ({ req: { user } }: any) => {
-      if (!user) return false;
+    // Public API access for all users, including logged-out ones
+    read: ({ req }: any) => {
+      // Allow public access to API for fetching course details
+      if (!req.user) return true; // Public access if user is not logged in
 
-      const { role, instituteId } = user;
+      const { role, instituteId } = req.user;
 
       if (role === 'admin') return true;
 
       if (role === 'accountmanager' && instituteId) {
-        const instituteIdValue = typeof instituteId === 'string' ? instituteId : instituteId.id;
+        const instituteIdValue =
+          typeof instituteId === 'string' ? instituteId : instituteId.id;
 
         if (instituteIdValue) {
           return {
@@ -24,9 +27,11 @@ export const Courses: CollectionConfig = {
 
       return false;
     },
+    // Create access for admin and account managers only
     create: ({ req: { user } }: any) => {
       return user?.role === 'admin' || user?.role === 'accountmanager';
     },
+    // Update access for admin and account managers only
     update: ({ req: { user }, doc }: any) => {
       if (!user) return false;
 
@@ -35,11 +40,24 @@ export const Courses: CollectionConfig = {
       if (user.role === 'accountmanager') {
         return true;
       }
+
       return false;
     },
+    // Prevent deletion of courses
     delete: () => false,
   },
-  admin: { useAsTitle: 'title' },
+  admin: {
+    useAsTitle: 'title',
+    hidden: ({ user }) => {
+      const { role } = user || {};
+
+      // Admins and account managers can see the courses in the admin panel
+      if (role === 'admin' || role === 'accountmanager') return false;
+
+      // Hide courses for all other roles
+      return true;
+    },
+  },
   hooks: {
     beforeValidate: [
       ({ data, req }) => {
@@ -131,17 +149,15 @@ export const Courses: CollectionConfig = {
       type: 'array',
       label: 'Course Content',
       fields: [
-        // Topic
         {
           name: 'topic',
           type: 'text',
           required: true,
           label: 'Topic',
         },
-        // Single Subtopic
         {
           name: 'subtopic',
-          type: 'richText', // Rich Text Editor for Subtopic
+          type: 'richText',
           required: true,
           label: 'Subtopic',
         },
@@ -156,7 +172,7 @@ export const Courses: CollectionConfig = {
     },
     {
       name: 'usp',
-      type: 'array', // Updated USP field
+      type: 'array',
       label: 'Unique Selling Points (USPs)',
       fields: [
         {
@@ -246,7 +262,7 @@ export const Courses: CollectionConfig = {
       type: 'text',
       required: false,
       label: 'Sales Price India',
-    },    
+    },
     {
       name: 'price_usd',
       type: 'text',
@@ -258,14 +274,13 @@ export const Courses: CollectionConfig = {
       type: 'text',
       required: false,
       label: 'Sales Price USD',
-    },    
+    },
     {
       name: 'youtube_url',
       type: 'text',
       required: false,
       label: 'Youtube URL',
     },
-    
     {
       name: 'bot_url',
       type: 'text',

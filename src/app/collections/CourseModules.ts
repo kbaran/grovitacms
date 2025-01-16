@@ -67,8 +67,9 @@ export const CourseModules: CollectionConfig = {
       const user = req.user as User;
 
       if (!user) return false;
-      if (user.role === 'admin') return true;
-      return false;
+     // if (user.role === 'admin') return true;
+     return user?.role === 'admin' || user?.role === 'accountmanager'; 
+     return false;
     },
     delete: () => false,
   },

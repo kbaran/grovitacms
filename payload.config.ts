@@ -4,7 +4,7 @@ import { en } from 'payload/i18n/en'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { buildConfig, GlobalConfig } from 'payload'
-import { v4 as uuidv4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid';
 
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
@@ -44,7 +44,6 @@ const statusFields = [
   },
 ]
 
-// Media collection fields
 const mediaField = {
   name: 'image',
   type: 'upload',
@@ -52,16 +51,10 @@ const mediaField = {
   label: 'Image',
 }
 
-// Build Payload Config
 export default buildConfig({
   debug: true,
   editor: lexicalEditor(),
-  csrf: [
-    'http://localhost:3002',
-    'https://onionpose.com',
-    'https://payload-3-0-pi.vercel.app',
-    'https://grovitacms.vercel.app',
-  ],
+  csrf: ['http://localhost:3002', 'https://onionpose.com', 'https://payload-3-0-pi.vercel.app', 'https://grovitacms.vercel.app'],
   collections: [
     Users,
     Institute,
@@ -79,40 +72,24 @@ export default buildConfig({
     },
     {
       slug: 'media',
-      upload: true, // Enables file uploads
-      fields: [
-        {
-          name: 'altText',
-          type: 'text',
-          label: 'Alternative Text',
-          required: true,
-        },
-        {
-          name: 'description',
-          type: 'textarea',
-          label: 'Description',
-        },
-        {
-          name: 'url',
-          type: 'text',
-          label: 'File URL',
-          admin: {
-            readOnly: true, // Automatically filled after upload
-          },
-        },
-      ],
+      upload: true,
+      fields: [{ name: 'text', type: 'text', label: 'Text' }],
       hooks: {
-        afterChange: async ({ doc, req, operation }) => {
-          if (operation === 'create') {
-            const { id } = doc
-            const mediaURL = `${process.env.BLOB_BASE_URL}/${id}`
-            await req.payload.update({
-              collection: 'media',
-              id,
-              data: { url: mediaURL },
-            })
-          }
-        },
+        afterChange: [
+          async ({ doc, req, operation }) => {
+            if (operation === 'create') {
+              const { id } = doc
+              const mediaURL = `${process.env.BLOB_BASE_URL}/${id}`
+
+              // Update the media document to include the URL
+              await req.payload.update({
+                collection: 'media',
+                id,
+                data: { url: mediaURL },
+              });
+            }
+          },
+        ],
       },
     },
   ],

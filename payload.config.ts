@@ -14,6 +14,7 @@ import { CourseCategory } from '@/app/collections/CourseCategory'
 import { CourseModules } from '@/app/collections/CourseModules'
 import { Courses } from '@/app/collections/Courses'
 import { Questions } from '@/app/collections/Questions'
+// import ImageKit from 'imagekit'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 
 const filename = fileURLToPath(import.meta.url)
@@ -34,7 +35,7 @@ const statusFields = [
       readOnly: true,
     },
     hooks: {
-      beforeChange: ({ data }: any) => {
+      beforeChange: ({ data }:any) => {
         if (!data.token) {
           data.token = uuidv4()
         }
@@ -51,10 +52,21 @@ const mediaField = {
   label: 'Image',
 }
 
+
+
+// Initialize ImageKit
+// const imagekit = new ImageKit({
+//   publicKey: process.env.IMAGEKIT_PUBLIC_KEY!,
+//   privateKey: process.env.IMAGEKIT_PRIVATE_KEY!,
+
+//   urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT!,
+// })
+
 export default buildConfig({
   debug: true,
   editor: lexicalEditor(),
-  csrf: ['http://localhost:3002', 'https://onionpose.com', 'https://payload-3-0-pi.vercel.app', 'https://grovitacms.vercel.app'],
+  // collections: [Post, Campaign, User, Pages, Media],
+  csrf: ['http://localhost:3002', 'https://onionpose.com', 'https://payload-3-0-pi.vercel.app','https://grovitacms.vercel.app'],
   collections: [
     Users,
     Institute,
@@ -74,23 +86,6 @@ export default buildConfig({
       slug: 'media',
       upload: true,
       fields: [{ name: 'text', type: 'text', label: 'Text' }],
-      hooks: {
-        afterChange: [
-          async ({ doc, req, operation }) => {
-            if (operation === 'create') {
-              const { id } = doc
-              const mediaURL = `${process.env.BLOB_BASE_URL}/${id}`
-
-              // Update the media document to include the URL
-              await req.payload.update({
-                collection: 'media',
-                id,
-                data: { url: mediaURL },
-              });
-            }
-          },
-        ],
-      },
     },
   ],
   plugins: [
@@ -124,6 +119,14 @@ export default buildConfig({
       password: 'test',
       prefillOnly: true,
     },
+    components: {
+      // views: {
+      //   customView: {
+      //     Component: '/path/to/MyCustomView#MyCustomView',
+      //     path: '/my-custom-view',
+      //   }
+      // },
+    },
   },
   async onInit(payload) {
     const existingUsers = await payload.find({
@@ -146,4 +149,5 @@ export default buildConfig({
     }
   },
   sharp,
+  // endpoints: [forceLoginEndpoint],
 })

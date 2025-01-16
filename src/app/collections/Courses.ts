@@ -35,7 +35,6 @@ export const Courses: CollectionConfig = {
       if (user.role === 'accountmanager') {
         return true;
       }
-
       return false;
     },
     delete: () => false,

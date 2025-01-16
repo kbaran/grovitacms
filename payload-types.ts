@@ -186,12 +186,21 @@ export interface Course {
   course_content?:
     | {
         topic: string;
-        subtopics?:
-          | {
-              subtopic: string;
-              id?: string | null;
-            }[]
-          | null;
+        subtopic: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
         id?: string | null;
       }[]
     | null;

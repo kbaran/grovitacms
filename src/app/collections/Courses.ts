@@ -239,14 +239,26 @@ export const Courses: CollectionConfig = {
       name: 'price_ind',
       type: 'text',
       required: false,
-      label: 'Price India',
+      label: 'BasePrice India',
     },
+    {
+      name: 'sales_price_ind',
+      type: 'text',
+      required: false,
+      label: 'Sales Price India',
+    },    
     {
       name: 'price_usd',
       type: 'text',
       required: false,
-      label: 'Price USD',
+      label: 'Base Price USD',
     },
+    {
+      name: 'sales_price_usd',
+      type: 'text',
+      required: false,
+      label: 'Sales Price USD',
+    },    
     {
       name: 'youtube_url',
       type: 'text',

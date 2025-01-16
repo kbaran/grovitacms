@@ -231,7 +231,9 @@ export interface Course {
   seodescription?: string | null;
   completion_time?: string | null;
   price_ind?: string | null;
+  sales_price_ind?: string | null;
   price_usd?: string | null;
+  sales_price_usd?: string | null;
   youtube_url?: string | null;
   bot_url?: string | null;
   prioritysequence?: string | null;

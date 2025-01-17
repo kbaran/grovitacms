@@ -3,7 +3,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  auth: true,
+  auth: {
+    useAPIKey: true,
+  },
   access: {
     delete: () => false, // Prevent deletion of users
     update: () => true, // Allow updates

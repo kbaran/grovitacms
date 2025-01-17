@@ -4,17 +4,18 @@ import type { CollectionConfig } from 'payload';
 export const CourseCategory: CollectionConfig = {
   slug: 'coursecategories',
   access: {
-    read: ({ req: { user } }) => {
-      if (!user) return false;
+    // Public API access for all users, including logged-out ones
+    read: ({ req }: any) => {
+      // Allow public access to API for fetching course details
+      if (!req.user) return true; // Public access if user is not logged in
 
-      const { role, instituteId } = user;
+      const { role, instituteId } = req.user;
 
-      if (role === 'admin') {
-        return true;
-      }
+      if (role === 'admin') return true;
 
       if (role === 'accountmanager' && instituteId) {
-        const instituteIdValue = typeof instituteId === 'string' ? instituteId : instituteId.id;
+        const instituteIdValue =
+          typeof instituteId === 'string' ? instituteId : instituteId.id;
 
         if (instituteIdValue) {
           return {
@@ -27,7 +28,24 @@ export const CourseCategory: CollectionConfig = {
 
       return false;
     },
-    create: isAdminOrManager,
+    // Create access for admin and account managers only
+    create: ({ req: { user } }: any) => {
+      return user?.role === 'admin' || user?.role === 'accountmanager';
+    },
+    // Update access for admin and account managers only
+    update: ({ req: { user }, doc }: any) => {
+      if (!user) return false;
+
+      if (user.role === 'admin') return true;
+
+      if (user.role === 'accountmanager') {
+        return true;
+      }
+
+      return false;
+    },
+    // Prevent deletion of courses
+    delete: () => false,
   },
   admin: {
     useAsTitle: 'title',

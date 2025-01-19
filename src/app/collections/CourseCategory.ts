@@ -114,7 +114,13 @@ export const CourseCategory: CollectionConfig = {
       type: 'text',
       required: true,
       label: 'SEO Description',
-    },       
+    }, 
+    {
+      name: 'h1title',
+      type: 'text',
+      required: false,
+      label: 'H1 Title',
+    },            
     {
       name: 'content',
       type: 'richText',

@@ -5,6 +5,7 @@ export const Users: CollectionConfig = {
   slug: 'users',
   auth: {
     useAPIKey: true, // Enable API key-based access
+    disableLocalStrategy: true, // Disable local strategy
   },
   access: {
     // Allow read access through the API

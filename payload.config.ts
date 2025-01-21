@@ -14,6 +14,7 @@ import { CourseCategory } from '@/app/collections/CourseCategory'
 import { CourseModules } from '@/app/collections/CourseModules'
 import { Courses } from '@/app/collections/Courses'
 import { Questions } from '@/app/collections/Questions'
+import { Widget1 } from '@/app/collections/Widget1'
 // import ImageKit from 'imagekit'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 
@@ -74,6 +75,7 @@ export default buildConfig({
     CourseCategory,
     Courses,
     CourseModules,
+    Widget1,
     Questions,
     {
       slug: 'pages',

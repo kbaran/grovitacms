@@ -16,6 +16,7 @@ export interface Config {
     coursecategories: Coursecategory;
     courses: Course;
     'course-modules': CourseModule;
+    widget1: Widget1;
     questions: Question;
     pages: Page;
     media: Media;
@@ -134,6 +135,7 @@ export interface Coursecategory {
   slug: string;
   seotitle: string;
   seodescription: string;
+  h1title?: string | null;
   content?: {
     root: {
       type: string;
@@ -282,6 +284,29 @@ export interface CourseModule {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "widget1".
+ */
+export interface Widget1 {
+  id: string;
+  title: string;
+  bgcolor: string;
+  ctatext?: string | null;
+  targeturl?: string | null;
+  active?: boolean | null;
+  instituteId?: (string | null) | Institute;
+  blocks?:
+    | {
+        block_title: string;
+        block_subtext?: string | null;
+        block_image?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "questions".
  */
 export interface Question {
@@ -354,6 +379,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'course-modules';
         value: string | CourseModule;
+      } | null)
+    | ({
+        relationTo: 'widget1';
+        value: string | Widget1;
       } | null)
     | ({
         relationTo: 'questions';

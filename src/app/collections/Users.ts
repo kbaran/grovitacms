@@ -1,15 +1,29 @@
 import type { CollectionConfig } from 'payload';
-import { v4 as uuidv4 } from 'uuid';
 
 export const Users: CollectionConfig = {
   slug: 'users',
   auth: {
-    useAPIKey: true,
+    useAPIKey: true, // Enable API key-based access
   },
   access: {
-    delete: () => false, // Prevent deletion of users
-    update: () => true, // Allow updates
-    create: () => true, // Allow creation
+    // Allow read access through the API
+    read: ({ req: { user } }) => {
+      // If the user is authenticated, allow access
+      return Boolean(user);
+    },
+    // Allow create access through the API
+    create: ({ req: { user } }) => {
+      // Allow creation by anyone (public access), or restrict it
+      // to authenticated users by adding a condition, e.g.:
+      return Boolean(user); // Allow only if authenticated
+    },
+    // Allow update access through the API
+    update: ({ req: { user } }) => {
+      // Allow updates only by authenticated users
+      return Boolean(user);
+    },
+    // Allow delete access through the API
+    delete: () => false, // Disable deletion of users through the API
   },
   fields: [
     {
@@ -59,7 +73,6 @@ export const Users: CollectionConfig = {
       admin: {
         description: 'Upload a profile picture (JPEG, PNG only).',
       },
-      
     },
     {
       name: 'linkedin_link',
@@ -88,6 +101,6 @@ export const Users: CollectionConfig = {
       type: 'checkbox',
       label: 'Active',
       defaultValue: true,
-    }
+    },
   ],
 };

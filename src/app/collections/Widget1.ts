@@ -94,7 +94,14 @@ export const Widget1: CollectionConfig = {
       name: 'bgcolor',
       type: 'text',
       required: true,
-      label: 'Background Color',
+      label: 'Background/Gradient Color',
+      defaultValue: '#FFFFFF', // Default value for bgcolor
+    },
+    {
+      name: 'bgcolor1',
+      type: 'text',
+      required: false,
+      label: 'Gradient Color',
       defaultValue: '#FFFFFF', // Default value for bgcolor
     },
     {
@@ -106,6 +113,7 @@ export const Widget1: CollectionConfig = {
     {
       name: 'targeturl',
       type: 'text',
+      required: false,
       label: 'Target URL',
     },
     {

@@ -87,8 +87,18 @@ export default buildConfig({
     },
     {
       slug: 'media',
-      upload: true,
-      fields: [{ name: 'text', type: 'text', label: 'Text' }],
+      upload: true, // Enables file uploads
+      access: {
+        read: () => true, // Allow public access to media
+      },      
+      fields: [
+        { name: 'text', type: 'text', label: 'Text' }, // Existing field
+        { name: 'filename', type: 'text', label: 'Filename' }, // File name
+        { name: 'path', type: 'text', label: 'Path' }, // File path
+        { name: 'mimeType', type: 'text', label: 'MIME Type' }, // File type
+        { name: 'width', type: 'number', label: 'Width' }, // Image width (optional)
+        { name: 'height', type: 'number', label: 'Height' }, // Image height (optional)
+      ],
     },
   ],
   plugins: [

@@ -1,20 +1,19 @@
-import { isAdminOrManager } from '@/access/isAdminOrManager';
-import type { CollectionConfig } from 'payload';
+import { isAdminOrManager } from "@/access/isAdminOrManager";
+import type { CollectionConfig } from "payload";
 
 export const Widget1: CollectionConfig = {
-  slug: 'widget1',
+  slug: "widget1",
   access: {
-    // Public API access for all users, including logged-out ones
     read: ({ req }: any) => {
       if (!req.user) return true;
 
       const { role, instituteId } = req.user;
 
-      if (role === 'admin') return true;
+      if (role === "admin") return true;
 
-      if (role === 'accountmanager' && instituteId) {
+      if (role === "accountmanager" && instituteId) {
         const instituteIdValue =
-          typeof instituteId === 'string' ? instituteId : instituteId.id;
+          typeof instituteId === "string" ? instituteId : instituteId.id;
 
         if (instituteIdValue) {
           return {
@@ -27,38 +26,36 @@ export const Widget1: CollectionConfig = {
 
       return false;
     },
-    // Create access for admin and account managers only
     create: ({ req: { user } }: any) => {
-      return user?.role === 'admin' || user?.role === 'accountmanager';
+      return user?.role === "admin" || user?.role === "accountmanager";
     },
-    // Update access for admin and account managers only
-    update: ({ req: { user }, doc }: any) => {
+    update: ({ req: { user } }: any) => {
       if (!user) return false;
 
-      if (user.role === 'admin') return true;
+      if (user.role === "admin") return true;
 
-      if (user.role === 'accountmanager') {
+      if (user.role === "accountmanager") {
         return true;
       }
 
       return false;
     },
-    delete: () => false, // Prevent deletion
+    delete: () => false,
   },
   admin: {
-    useAsTitle: 'title',
+    useAsTitle: "title",
   },
   hooks: {
     beforeValidate: [
       ({ data, req }) => {
         data ??= {};
 
-        if (req.user?.role === 'accountmanager') {
+        if (req.user?.role === "accountmanager") {
           if (!req.user.instituteId) {
-            throw new Error('Account managers must have an associated institute.');
+            throw new Error("Account managers must have an associated institute.");
           }
           data.instituteId =
-            typeof req.user.instituteId === 'string'
+            typeof req.user.instituteId === "string"
               ? req.user.instituteId
               : req.user.instituteId?.id;
         }
@@ -68,13 +65,13 @@ export const Widget1: CollectionConfig = {
     ],
     beforeChange: [
       ({ data, req }) => {
-        console.log('Before Change - Modified Data:', data);
+        console.log("Before Change - Modified Data:", data);
 
         data ??= {};
 
-        if (req.user?.role === 'accountmanager') {
+        if (req.user?.role === "accountmanager") {
           data.instituteId =
-            typeof req.user.instituteId === 'string'
+            typeof req.user.instituteId === "string"
               ? req.user.instituteId
               : req.user.instituteId?.id || data.instituteId;
         }
@@ -85,53 +82,53 @@ export const Widget1: CollectionConfig = {
   },
   fields: [
     {
-      name: 'title',
-      type: 'text',
+      name: "title",
+      type: "text",
       required: true,
-      label: 'Title',
+      label: "Title",
     },
     {
-      name: 'bgcolor',
-      type: 'text',
+      name: "bgcolor",
+      type: "text",
       required: true,
-      label: 'Background/Gradient Color',
-      defaultValue: '#FFFFFF', // Default value for bgcolor
+      label: "Background/Gradient Color",
+      defaultValue: "#FFFFFF", // Default value for bgcolor
     },
     {
-      name: 'bgcolor1',
-      type: 'text',
+      name: "bgcolor1",
+      type: "text",
       required: false,
-      label: 'Gradient Color',
-      defaultValue: '#FFFFFF', // Default value for bgcolor
+      label: "Gradient Color",
+      defaultValue: "#FFFFFF", // Default value for bgcolor
     },
     {
-      name: 'ctatext',
-      type: 'text',
+      name: "ctatext",
+      type: "text",
       required: false,
-      label: 'CTA Label',
+      label: "CTA Label",
     },
     {
-      name: 'targeturl',
-      type: 'text',
+      name: "targeturl",
+      type: "text",
       required: false,
-      label: 'Target URL',
+      label: "Target URL",
     },
     {
-      name: 'active',
-      type: 'checkbox',
-      label: 'Active',
+      name: "active",
+      type: "checkbox",
+      label: "Active",
       defaultValue: true,
     },
     {
-      name: 'instituteId',
-      type: 'relationship',
-      relationTo: 'institute',
+      name: "instituteId",
+      type: "relationship",
+      relationTo: "institute",
       required: true,
-      label: 'Institute',
+      label: "Institute",
       admin: {
-        position: 'sidebar',
+        position: "sidebar",
         condition: (_, { user }) => {
-          return !!user?.instituteId || user?.role === 'admin';
+          return !!user?.instituteId || user?.role === "admin";
         },
       },
       hooks: {
@@ -139,9 +136,9 @@ export const Widget1: CollectionConfig = {
           ({ data, req }) => {
             data ??= {};
 
-            if (req.user?.role === 'accountmanager') {
+            if (req.user?.role === "accountmanager") {
               data.instituteId =
-                typeof req.user.instituteId === 'string'
+                typeof req.user.instituteId === "string"
                   ? req.user.instituteId
                   : req.user.instituteId?.id || data.instituteId;
             }
@@ -151,30 +148,30 @@ export const Widget1: CollectionConfig = {
       },
     },
     {
-      name: 'blocks', // New array field for block items
-      type: 'array',
-      label: 'Blocks',
+      name: "blocks",
+      type: "array",
+      label: "Blocks",
       fields: [
         {
-          name: 'block_title',
-          type: 'text',
+          name: "block_title",
+          type: "text",
           required: true,
-          label: 'Block Title',
+          label: "Block Title",
         },
         {
-          name: 'block_subtext',
-          type: 'textarea',
+          name: "block_subtext",
+          type: "textarea",
           required: false,
-          label: 'Block Subtext',
+          label: "Block Subtext",
         },
         {
-          name: 'block_image',
-          type: 'upload',
-          relationTo: 'media',
+          name: "block_image",
+          type: "upload",
+          relationTo: "media",
           required: false,
-          label: 'Block Image',
+          label: "Block Image",
           admin: {
-            description: 'Upload an image for the block.',
+            description: "Upload an image for the block.",
           },
         },
       ],

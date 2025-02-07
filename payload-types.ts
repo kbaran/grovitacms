@@ -17,6 +17,7 @@ export interface Config {
     courses: Course;
     'course-modules': CourseModule;
     widget1: Widget1;
+    consultation: Consultation;
     questions: Question;
     pages: Page;
     media: Media;
@@ -290,6 +291,7 @@ export interface Widget1 {
   id: string;
   title: string;
   bgcolor: string;
+  bgcolor1?: string | null;
   ctatext?: string | null;
   targeturl?: string | null;
   active?: boolean | null;
@@ -302,6 +304,21 @@ export interface Widget1 {
         id?: string | null;
       }[]
     | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consultation".
+ */
+export interface Consultation {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  summary?: string | null;
+  website?: string | null;
+  createdBy?: (string | null) | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -383,6 +400,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'widget1';
         value: string | Widget1;
+      } | null)
+    | ({
+        relationTo: 'consultation';
+        value: string | Consultation;
       } | null)
     | ({
         relationTo: 'questions';

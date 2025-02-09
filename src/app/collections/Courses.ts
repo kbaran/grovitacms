@@ -88,15 +88,15 @@ export const Courses: CollectionConfig = {
       name: 'who_is_this_for',
       type: 'array',
       label: 'Who is this course for?',
-      required: false, // ✅ Not required
+      required: false,
       fields: [
         { name: 'title', type: 'text', required: true, label: 'Target Audience' },
         {
           name: 'image',
           type: 'upload',
-          relationTo: 'media', // ✅ Linking to media collection
+          relationTo: 'media',
           label: 'Icon/Image',
-          required: false, // ✅ Image is optional
+          required: false,
         },
       ],
     },
@@ -139,5 +139,33 @@ export const Courses: CollectionConfig = {
     { name: 'youtube_url', type: 'text', label: 'Youtube URL', required: false },
     { name: 'bot_url', type: 'text', label: 'Bot URL', required: false },
     { name: 'prioritysequence', type: 'text', label: 'Priority Sequence', required: false },
+
+    // ✅ **New Field for Feedback**
+    {
+      name: 'feedback',
+      type: 'array',
+      label: 'User Feedback',
+      required: false, // Feedback optional
+      fields: [
+        {
+          name: 'name',
+          type: 'text',
+          label: 'User Name',
+          required: true, // Name required
+        },
+        {
+          name: 'profession',
+          type: 'text',
+          label: 'User Profession',
+          required: false, // Profession optional
+        },
+        {
+          name: 'comment',
+          type: 'textarea',
+          label: 'User Comment',
+          required: true, // Comment required
+        },
+      ],
+    },
   ],
 };

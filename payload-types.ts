@@ -249,6 +249,14 @@ export interface Course {
   youtube_url?: string | null;
   bot_url?: string | null;
   prioritysequence?: string | null;
+  feedback?:
+    | {
+        name: string;
+        profession?: string | null;
+        comment: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }

@@ -210,7 +210,13 @@ export interface Course {
         id?: string | null;
       }[]
     | null;
-  course_content_pdf?: (string | null) | Media;
+  who_is_this_for?:
+    | {
+        title: string;
+        image?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
   usp?:
     | {
         text: string;

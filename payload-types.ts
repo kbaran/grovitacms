@@ -18,7 +18,7 @@ export interface Config {
     'course-modules': CourseModule;
     widget1: Widget1;
     consultation: Consultation;
-    price_plans: PricePlan;
+    priceplans: Priceplan;
     questions: Question;
     pages: Page;
     media: Media;
@@ -339,24 +339,25 @@ export interface Consultation {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "price_plans".
+ * via the `definition` "priceplans".
  */
-export interface PricePlan {
+export interface Priceplan {
   id: string;
-  instituteId: string | Institute;
-  icon?: (string | null) | Media;
   plan_title: string;
+  icon?: (string | null) | Media;
   usp?:
     | {
-        usp_item: string;
+        text: string;
         id?: string | null;
       }[]
     | null;
-  price_usd?: string | null;
-  price_ind?: string | null;
-  sale_price_usd?: string | null;
-  sale_price_ind?: string | null;
+  price_usd: number;
+  price_india: number;
+  sale_price_usd?: number | null;
+  sale_price_india?: number | null;
   isBestSeller?: boolean | null;
+  instituteId?: (string | null) | Institute;
+  active?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -444,8 +445,8 @@ export interface PayloadLockedDocument {
         value: string | Consultation;
       } | null)
     | ({
-        relationTo: 'price_plans';
-        value: string | PricePlan;
+        relationTo: 'priceplans';
+        value: string | Priceplan;
       } | null)
     | ({
         relationTo: 'questions';

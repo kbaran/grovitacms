@@ -91,6 +91,12 @@ export default buildConfig({
       slug: 'media',
       upload: true,
       fields: [{ name: 'text', type: 'text', label: 'Text' }],
+      access: {
+        read: () => true, // ✅ Allow everyone to read media
+        create: ({ req }) => !!req.user, // ✅ Only logged-in users can upload
+        update: ({ req }) => req.user?.role === 'admin', // ✅ Only admins can update
+        delete: ({ req }) => req.user?.role === 'admin', // ✅ Only admins can delete
+      },
     },
   ],
   plugins: [

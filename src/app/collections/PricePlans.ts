@@ -3,38 +3,21 @@ import type { CollectionConfig } from 'payload';
 export const PricePlans: CollectionConfig = {
   slug: "priceplans",
   access: {
-    read: ({ req: { user } }) => {
-      if (!user) return false;
-
-      const { role, instituteId } = user;
-
-      if (role === "admin") {
-        return true;
-      }
-
-      if (role === "accountmanager" && instituteId) {
-        const instituteIdValue =
-          typeof instituteId === "string" ? instituteId : instituteId?.id;
-
-        if (instituteIdValue) {
-          return {
-            instituteId: {
-              equals: instituteIdValue,
-            },
-          };
+    read: ({ req }: any) => {
+        if (!req.user) return true;
+        const { role, instituteId } = req.user;
+        if (role === 'admin') return true;
+        if (role === 'accountmanager' && instituteId) {
+          const instituteIdValue = typeof instituteId === 'string' ? instituteId : instituteId.id;
+          if (instituteIdValue) {
+            return { instituteId: { equals: instituteIdValue } };
+          }
         }
-      }
-
-      return false;
-    },
-    create: ({ req: { user } }) => {
-      return user?.role === "admin" || user?.role === "accountmanager";
-    },
-    update: ({ req: { user } }) => {
-      if (!user) return false;
-      return user.role === "admin" || user?.role === "accountmanager";
-    },
-    delete: () => false,
+        return false;
+      },
+      create: ({ req: { user } }: any) => user?.role === 'admin' || user?.role === 'accountmanager',
+      update: ({ req: { user } }: any) => user?.role === 'admin' || user?.role === 'accountmanager',
+      delete: () => false,
   },
   admin: {
     useAsTitle: "plan_title",

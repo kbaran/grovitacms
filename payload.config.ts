@@ -16,6 +16,7 @@ import { Courses } from '@/app/collections/Courses'
 import { Questions } from '@/app/collections/Questions'
 import { Widget1 } from '@/app/collections/Widget1'
 import { Consultation } from '@/app/collections/Consultation'
+import { PricePlans } from '@/app/collections/PricePlans'
 // import ImageKit from 'imagekit'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 
@@ -78,6 +79,7 @@ export default buildConfig({
     CourseModules,
     Widget1,
     Consultation,
+    PricePlans,
     Questions,
     {
       slug: 'pages',

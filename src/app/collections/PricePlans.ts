@@ -24,16 +24,20 @@ export const PricePlans: CollectionConfig = {
   },
   hooks: {
     beforeValidate: [
-      ({ data, req }) => {
-        if (req.user?.role === 'accountmanager') {
-          if (!req.user.instituteId) {
-            throw new Error('Account managers must have an associated institute.');
+        ({ data, req }) => {
+          // Ensure `data` is always an object
+          data = data || {};
+      
+          if (req.user?.role === 'accountmanager') {
+            if (!req.user.instituteId) {
+              throw new Error('Account managers must have an associated institute.');
+            }
+            data.instituteId = req.user.instituteId?.id || req.user.instituteId;
           }
-          data.instituteId = req.user.instituteId?.id || req.user.instituteId;
-        }
-        return data;
-      },
-    ],
+      
+          return data;
+        },
+      ],
   },
   fields: [
     {

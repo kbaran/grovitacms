@@ -140,30 +140,52 @@ export const Courses: CollectionConfig = {
     { name: 'bot_url', type: 'text', label: 'Bot URL', required: false },
     { name: 'prioritysequence', type: 'text', label: 'Priority Sequence', required: false },
 
-    // ✅ **New Field for Feedback**
+    // ✅ **User Feedback**
     {
       name: 'feedback',
       type: 'array',
       label: 'User Feedback',
-      required: false, // Feedback optional
+      required: false,
       fields: [
         {
           name: 'name',
           type: 'text',
           label: 'User Name',
-          required: true, // Name required
+          required: true,
         },
         {
           name: 'profession',
           type: 'text',
           label: 'User Profession',
-          required: false, // Profession optional
+          required: false,
         },
         {
           name: 'comment',
           type: 'textarea',
           label: 'User Comment',
-          required: true, // Comment required
+          required: true,
+        },
+      ],
+    },
+
+    // ✅ **NEW FAQ Field**
+    {
+      name: 'faq',
+      type: 'array',
+      label: 'Frequently Asked Questions',
+      required: false,
+      fields: [
+        {
+          name: 'question',
+          type: 'text',
+          label: 'FAQ Question',
+          required: true,
+        },
+        {
+          name: 'answer',
+          type: 'richText', // ✅ Rich Text for formatting answers
+          label: 'FAQ Answer',
+          required: true,
         },
       ],
     },

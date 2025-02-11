@@ -19,6 +19,7 @@ export interface Config {
     widget1: Widget1;
     consultation: Consultation;
     priceplans: Priceplan;
+    purchases: Purchase;
     questions: Question;
     pages: Page;
     media: Media;
@@ -384,6 +385,24 @@ export interface Priceplan {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "purchases".
+ */
+export interface Purchase {
+  id: string;
+  user: string | User;
+  course: string | Course;
+  pricePlan: string | Priceplan;
+  amountPaid: number;
+  currency: 'INR' | 'USD';
+  paymentStatus: 'pending' | 'success' | 'failed';
+  razorpayOrderId?: string | null;
+  razorpayPaymentId?: string | null;
+  razorpaySignature?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "questions".
  */
 export interface Question {
@@ -468,6 +487,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'priceplans';
         value: string | Priceplan;
+      } | null)
+    | ({
+        relationTo: 'purchases';
+        value: string | Purchase;
       } | null)
     | ({
         relationTo: 'questions';

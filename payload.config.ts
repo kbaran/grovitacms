@@ -19,6 +19,7 @@ import { Consultation } from '@/app/collections/Consultation'
 import { PricePlans } from '@/app/collections/PricePlans'
 // import ImageKit from 'imagekit'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { Purchases } from '@/app/collections/Purchases'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -80,6 +81,7 @@ export default buildConfig({
     Widget1,
     Consultation,
     PricePlans,
+    Purchases,
     Questions,
     {
       slug: 'pages',

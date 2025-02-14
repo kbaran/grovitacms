@@ -7,24 +7,10 @@ export const Users: CollectionConfig = {
     useAPIKey: true, // Enable API key-based access
   },
   access: {
-    // Allow read access through the API
-    read: ({ req: { user } }) => {
-      // If the user is authenticated, allow access
-      return Boolean(user);
-    },
-    // Allow create access through the API
-    create: ({ req: { user } }) => {
-      // Allow creation by anyone (public access), or restrict it
-      // to authenticated users by adding a condition, e.g.:
-      return Boolean(user); // Allow only if authenticated
-    },
-    // Allow update access through the API
-    update: ({ req: { user } }) => {
-      // Allow updates only by authenticated users
-      return Boolean(user);
-    },
-    // Allow delete access through the API
-    delete: () => false, // Disable deletion of users through the API
+    read: () => true, // ✅ Anyone can read users
+    create: () => true, // ✅ Allow user creation without login (important!)
+    update: ({ req }) => !!req.user, // ✅ Allow only logged-in users to update
+    delete: () => false, // ✅ No one can delete users
   },
   fields: [
     {

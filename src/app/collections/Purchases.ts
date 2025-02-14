@@ -16,7 +16,10 @@ export const Purchases: CollectionConfig = {
         return false;
       },
       create: ({ req: { user } }: any) => user?.role === 'admin' || user?.role === 'accountmanager',
-      update: ({ req: { user } }: any) => user?.role === 'admin' || user?.role === 'accountmanager',
+      update: ({ req: { user } }: any) => {
+        console.log("🔍 Update Request User:", user); // Debugging log
+        return user?.role === "admin" || user?.role === "accountmanager";
+      },
       delete: () => false,
   },
   admin: { useAsTitle: "id" },

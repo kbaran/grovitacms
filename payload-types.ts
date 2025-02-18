@@ -317,6 +317,12 @@ export interface CourseModule {
   instituteId: string | Institute;
   seotitle: string;
   seodescription: string;
+  resources?:
+    | {
+        file?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }

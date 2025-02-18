@@ -35,11 +35,8 @@ export const CourseModules: CollectionConfig = {
   access: {
     read: ({ req }) => {
       const user = req.user as User;
-
       if (!user) return false;
-
       const { role, instituteId } = user;
-
       if (role === 'admin') return true;
 
       if (role === 'accountmanager' && instituteId) {
@@ -65,17 +62,13 @@ export const CourseModules: CollectionConfig = {
     },
     update: ({ req }) => {
       const user = req.user as User;
-
-      if (!user) return false;
-     // if (user.role === 'admin') return true;
-     return user?.role === 'admin' || user?.role === 'accountmanager'; 
-     return false;
+      return user?.role === 'admin' || user?.role === 'accountmanager'; 
     },
     delete: () => false,
   },
   admin: { useAsTitle: 'module' },
   hooks: {
-    beforeValidate: [handleInstituteId], // Correctly typed hook handler
+    beforeValidate: [handleInstituteId],
   },
   fields: [
     {
@@ -112,7 +105,7 @@ export const CourseModules: CollectionConfig = {
     },
     {
       name: 'sequence',
-      type: 'number', // Added sequence field
+      type: 'number',
       label: 'Sequence',
       required: true,
       admin: {
@@ -130,7 +123,7 @@ export const CourseModules: CollectionConfig = {
       },
     },
     {
-      name: 'seotitle', // SEO Title added directly
+      name: 'seotitle',
       type: 'text',
       label: 'SEO Title',
       required: true,
@@ -139,12 +132,29 @@ export const CourseModules: CollectionConfig = {
       },
     },
     {
-      name: 'seodescription', // SEO Description added directly
+      name: 'seodescription',
       type: 'textarea',
       label: 'SEO Description',
       required: true,
       admin: {
         placeholder: 'Write a short SEO-friendly description',
+      },
+    },
+    {
+      name: 'resources',
+      type: 'array',
+      label: 'Resources (Optional)',
+      required: false, // ✅ This makes it optional
+      fields: [
+        {
+          name: 'file',
+          type: 'upload',
+          relationTo: 'media',
+          required: false,
+        },
+      ],
+      admin: {
+        description: 'Upload multiple PDFs, Excel, or Doc files for this module.',
       },
     },
   ],

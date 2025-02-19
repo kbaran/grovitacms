@@ -33,27 +33,16 @@ const handleInstituteId = async ({
 export const CourseModules: CollectionConfig = {
   slug: 'course-modules',
   access: {
-    read: ({ req }) => {
-      const user = req.user as User;
-      if (!user) return false;
-      const { role, instituteId } = user;
+    read: ({ req }: any) => {
+      if (!req.user) return true;
+      const { role, instituteId } = req.user;
       if (role === 'admin') return true;
-
       if (role === 'accountmanager' && instituteId) {
-        const instituteIdValue =
-          typeof instituteId === 'string'
-            ? instituteId
-            : (instituteId as { id: string })?.id;
-
+        const instituteIdValue = typeof instituteId === 'string' ? instituteId : instituteId.id;
         if (instituteIdValue) {
-          return {
-            instituteId: {
-              equals: instituteIdValue,
-            },
-          };
+          return { instituteId: { equals: instituteIdValue } };
         }
       }
-
       return false;
     },
     create: ({ req }) => {

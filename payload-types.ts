@@ -20,6 +20,7 @@ export interface Config {
     consultation: Consultation;
     priceplans: Priceplan;
     purchases: Purchase;
+    examcategories: Examcategory;
     questions: Question;
     pages: Page;
     media: Media;
@@ -409,22 +410,115 @@ export interface Purchase {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "examcategories".
+ */
+export interface Examcategory {
+  id: string;
+  title: string;
+  slug: string;
+  seotitle: string;
+  seodescription: string;
+  h1title?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  brandlogo?: (string | null) | Media;
+  exambanner?: (string | null) | Media;
+  active?: boolean | null;
+  popular?: boolean | null;
+  upcoming?: boolean | null;
+  instituteId?: (string | null) | Institute;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "questions".
  */
 export interface Question {
   id: string;
   course: string | Course;
   module?: (string | null) | CourseModule;
-  question: string;
-  type: 'single-choice' | 'multi-choice' | 'text';
+  question: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  questionImage?: (string | null) | Media;
+  type: 'single-choice' | 'multi-choice' | 'text' | 'numerical';
   options?:
     | {
-        option: string;
+        option: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
         isCorrect?: boolean | null;
         id?: string | null;
       }[]
     | null;
-  correctAnswer?: string | null;
+  correctAnswer?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  explanation?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   instituteId?: (string | null) | Institute;
   active?: boolean | null;
   updatedAt: string;
@@ -497,6 +591,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'purchases';
         value: string | Purchase;
+      } | null)
+    | ({
+        relationTo: 'examcategories';
+        value: string | Examcategory;
       } | null)
     | ({
         relationTo: 'questions';

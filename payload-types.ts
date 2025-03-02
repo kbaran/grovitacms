@@ -21,6 +21,8 @@ export interface Config {
     priceplans: Priceplan;
     purchases: Purchase;
     examcategories: Examcategory;
+    mocktestquestions: Mocktestquestion;
+    mocktests: Mocktest;
     questions: Question;
     pages: Page;
     media: Media;
@@ -439,7 +441,57 @@ export interface Examcategory {
   active?: boolean | null;
   popular?: boolean | null;
   upcoming?: boolean | null;
-  instituteId?: (string | null) | Institute;
+  instituteId: string | Institute;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mocktestquestions".
+ */
+export interface Mocktestquestion {
+  id: string;
+  mocktestId: string | Mocktest;
+  question: string;
+  questionimage?: (string | null) | Media;
+  answers?:
+    | {
+        answerText: string;
+        answerImage?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  correctAnswer: string;
+  answer?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  instituteId: string | Institute;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mocktests".
+ */
+export interface Mocktest {
+  id: string;
+  examCategory: string | Examcategory;
+  userId: string | User;
+  title: string;
+  score?: number | null;
+  instituteId: string | Institute;
   updatedAt: string;
   createdAt: string;
 }
@@ -451,74 +503,16 @@ export interface Question {
   id: string;
   course: string | Course;
   module?: (string | null) | CourseModule;
-  question: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  questionImage?: (string | null) | Media;
-  type: 'single-choice' | 'multi-choice' | 'text' | 'numerical';
+  question: string;
+  type: 'single-choice' | 'multi-choice' | 'text';
   options?:
     | {
-        option: {
-          root: {
-            type: string;
-            children: {
-              type: string;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
+        option: string;
         isCorrect?: boolean | null;
         id?: string | null;
       }[]
     | null;
-  correctAnswer?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  explanation?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
+  correctAnswer?: string | null;
   instituteId?: (string | null) | Institute;
   active?: boolean | null;
   updatedAt: string;
@@ -595,6 +589,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'examcategories';
         value: string | Examcategory;
+      } | null)
+    | ({
+        relationTo: 'mocktestquestions';
+        value: string | Mocktestquestion;
+      } | null)
+    | ({
+        relationTo: 'mocktests';
+        value: string | Mocktest;
       } | null)
     | ({
         relationTo: 'questions';

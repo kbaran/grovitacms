@@ -1,8 +1,8 @@
 import { isAdminOrManager } from '@/access/isAdminOrManager';
 import type { CollectionConfig } from 'payload';
 
-export const ExamCategory: CollectionConfig = {
-  slug: 'examcategories',
+export const MockTests: CollectionConfig = {
+  slug: 'mocktests',
   access: {
     read: ({ req }: any) => {
       if (!req.user) return true;
@@ -23,8 +23,6 @@ export const ExamCategory: CollectionConfig = {
   hooks: {
     beforeValidate: [
       ({ data, req }) => {
-        console.log('Before Validate - Incoming Data:', data);
-        console.log('Logged-In User:', req.user);
         data ??= {};
         if (req.user?.role === 'accountmanager') {
           if (!req.user.instituteId) {
@@ -38,17 +36,32 @@ export const ExamCategory: CollectionConfig = {
     ],
   },
   fields: [
-    { name: 'title', type: 'text', required: true, label: 'Category Title' },
-    { name: 'slug', type: 'text', required: true, label: 'Category Slug' },
-    { name: 'seotitle', type: 'text', required: true, label: 'SEO Title' },
-    { name: 'seodescription', type: 'text', required: true, label: 'SEO Description' },
-    { name: 'h1title', type: 'text', required: false, label: 'H1 Title' },
-    { name: 'content', type: 'richText', required: false, label: 'Exam Content' },
-    { name: 'brandlogo', type: 'upload', relationTo: 'media', required: false, label: 'Brand Logo' },
-    { name: 'exambanner', type: 'upload', relationTo: 'media', required: false, label: 'Exam Banner' },
-    { name: 'active', type: 'checkbox', label: 'Active', defaultValue: true },
-    { name: 'popular', type: 'checkbox', label: 'Popular', defaultValue: false },
-    { name: 'upcoming', type: 'checkbox', label: 'Upcoming', defaultValue: false },
+    {
+      name: 'examCategory',
+      type: 'relationship',
+      relationTo: 'examcategories',
+      required: true,
+      label: 'Exam Category',
+    },
+    {
+      name: 'userId',
+      type: 'relationship',
+      relationTo: 'users',
+      required: true,
+      label: 'User ID',
+    },
+    {
+      name: 'title',
+      type: 'text',
+      required: true,
+      label: 'Title',
+    },
+    {
+      name: 'score',
+      type: 'number',
+      required: false,
+      label: 'Score',
+    },
     {
       name: 'instituteId',
       type: 'relationship',

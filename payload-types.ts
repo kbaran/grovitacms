@@ -456,12 +456,12 @@ export interface Mocktestquestion {
   questionimage?: (string | null) | Media;
   answers?:
     | {
-        answerText: string;
+        answerText?: string | null;
         answerImage?: (string | null) | Media;
         id?: string | null;
       }[]
     | null;
-  correctAnswer: string;
+  correctAnswer?: string | null;
   answer?: {
     root: {
       type: string;

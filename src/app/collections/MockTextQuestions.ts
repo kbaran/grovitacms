@@ -64,7 +64,7 @@ export const MockTestQuestions: CollectionConfig = {
         {
           name: 'answerText',
           type: 'text',
-          required: true,
+          required: false,
           label: 'Answer Text',
         },
         {
@@ -79,7 +79,7 @@ export const MockTestQuestions: CollectionConfig = {
     {
       name: 'correctAnswer',
       type: 'text',
-      required: true,
+      required: false,
       label: 'Correct Answer',
     },
     {

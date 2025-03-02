@@ -456,27 +456,13 @@ export interface Mocktestquestion {
   questionimage?: (string | null) | Media;
   answers?:
     | {
-        answerText?: string | null;
+        answerText: string;
         answerImage?: (string | null) | Media;
         id?: string | null;
       }[]
     | null;
-  correctAnswer?: string | null;
-  answer?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
+  correctAnswer: string;
+  answer?: string | null;
   instituteId: string | Institute;
   updatedAt: string;
   createdAt: string;

@@ -45,9 +45,12 @@ export const MockTestQuestions: CollectionConfig = {
     },
     {
       name: 'question',
-      type: 'text',
+      type: 'code',
       required: true,
-      label: 'Question',
+      label: 'Question (LaTeX Encoded)',
+      admin: {
+        language: 'latex',
+      },
     },
     {
       name: 'questionimage',
@@ -63,9 +66,12 @@ export const MockTestQuestions: CollectionConfig = {
       fields: [
         {
           name: 'answerText',
-          type: 'text',
-          required: false,
-          label: 'Answer Text',
+          type: 'code',
+          required: true,
+          label: 'Answer Text (LaTeX Encoded)',
+          admin: {
+            language: 'latex',
+          },
         },
         {
           name: 'answerImage',
@@ -78,15 +84,21 @@ export const MockTestQuestions: CollectionConfig = {
     },
     {
       name: 'correctAnswer',
-      type: 'text',
-      required: false,
-      label: 'Correct Answer',
+      type: 'code',
+      required: true,
+      label: 'Correct Answer (LaTeX Encoded)',
+      admin: {
+        language: 'latex',
+      },
     },
     {
       name: 'answer',
-      type: 'richText',
+      type: 'code',
       required: false,
-      label: 'Detailed Answer Explanation',
+      label: 'Detailed Answer Explanation (LaTeX Encoded)',
+      admin: {
+        language: 'latex',
+      },
     },
     {
       name: 'instituteId',

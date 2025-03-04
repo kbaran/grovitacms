@@ -63,6 +63,48 @@ export const MockTests: CollectionConfig = {
       label: 'Score',
     },
     {
+      name: 'questions',
+      type: 'array',
+      label: 'Mock Test Questions',
+      required: true, // Each mock test must have associated questions
+      fields: [
+        {
+          name: 'questionId',
+          type: 'relationship',
+          relationTo: 'mocktestquestions',
+          required: true, // Ensures the question exists
+          label: 'Question ID',
+        },
+      ],
+    },
+    {
+      name: 'responses',
+      type: 'array',
+      label: 'User Responses',
+      required: false, // Not required initially, added when user attempts test
+      fields: [
+        {
+          name: 'questionId',
+          type: 'relationship',
+          relationTo: 'mocktestquestions',
+          required: true, // Must exist if an answer is recorded
+          label: 'Question ID',
+        },
+        {
+          name: 'selectedAnswer',
+          type: 'text',
+          required: false, // Optional, user may skip a question
+          label: 'User Selected Answer',
+        },
+        {
+          name: 'timeTaken',
+          type: 'number',
+          required: false,
+          label: 'Time Taken (seconds)',
+        },
+      ],
+    },
+    {
       name: 'instituteId',
       type: 'relationship',
       relationTo: 'institute',

@@ -456,12 +456,12 @@ export interface Mocktestquestion {
   questionimage?: (string | null) | Media;
   answers?:
     | {
-        answerText: string;
+        answerText?: string | null;
         answerImage?: (string | null) | Media;
+        isCorrect: boolean;
         id?: string | null;
       }[]
     | null;
-  correctAnswer: string;
   answer?: string | null;
   instituteId: string | Institute;
   updatedAt: string;
@@ -477,6 +477,18 @@ export interface Mocktest {
   userId: string | User;
   title: string;
   score?: number | null;
+  questions: {
+    questionId: string | Mocktestquestion;
+    id?: string | null;
+  }[];
+  responses?:
+    | {
+        questionId: string | Mocktestquestion;
+        selectedAnswer?: string | null;
+        timeTaken?: number | null;
+        id?: string | null;
+      }[]
+    | null;
   instituteId: string | Institute;
   updatedAt: string;
   createdAt: string;

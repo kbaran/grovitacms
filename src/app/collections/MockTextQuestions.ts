@@ -67,7 +67,7 @@ export const MockTestQuestions: CollectionConfig = {
         {
           name: 'answerText',
           type: 'code',
-          required: true,
+          required: false,
           label: 'Answer Text (LaTeX Encoded)',
           admin: {
             language: 'latex',
@@ -80,16 +80,14 @@ export const MockTestQuestions: CollectionConfig = {
           required: false,
           label: 'Answer Image',
         },
+        {
+          name: 'isCorrect',
+          type: 'checkbox',
+          required: true,
+          label: 'Is Correct Answer?',
+          defaultValue: false, // Default to false to prevent accidental selection
+        },
       ],
-    },
-    {
-      name: 'correctAnswer',
-      type: 'code',
-      required: true,
-      label: 'Correct Answer (LaTeX Encoded)',
-      admin: {
-        language: 'latex',
-      },
     },
     {
       name: 'answer',

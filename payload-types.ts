@@ -451,7 +451,6 @@ export interface Examcategory {
  */
 export interface Mocktestquestion {
   id: string;
-  mocktestId: string | Mocktest;
   question: string;
   questionimage?: (string | null) | Media;
   answers?:

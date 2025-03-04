@@ -37,13 +37,6 @@ export const MockTestQuestions: CollectionConfig = {
   },
   fields: [
     {
-      name: 'mocktestId',
-      type: 'relationship',
-      relationTo: 'mocktests',
-      required: true,
-      label: 'Mock Test',
-    },
-    {
       name: 'question',
       type: 'code',
       required: true,

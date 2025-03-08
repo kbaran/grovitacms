@@ -83,21 +83,47 @@ export const MockTestQuestions: CollectionConfig = {
       ],
     },
     {
-      name: 'answer',
-      type: 'code',
-      required: false,
-      label: 'Detailed Answer Explanation (LaTeX Encoded)',
-      admin: {
-        language: 'latex',
-      },
-    },
-    {
       name: 'instituteId',
       type: 'relationship',
       relationTo: 'institute',
       required: true,
       label: 'Institute',
       admin: { position: 'sidebar', readOnly: true },
+    },
+    // New fields added
+    {
+      name: 'subject',
+      type: 'text',
+      required: true,
+      label: 'Subject',
+    },
+    {
+      name: 'topicsCovered',
+      type: 'array',
+      label: 'Topics Covered',
+      fields: [
+        {
+          name: 'topic',
+          type: 'text',
+        },
+      ],
+    },
+    {
+      name: 'difficulty',
+      type: 'select',
+      label: 'Difficulty',
+      options: [
+        { label: 'Easy', value: 'easy' },
+        { label: 'Medium', value: 'medium' },
+        { label: 'Hard', value: 'hard' },
+        { label: 'Very Hard', value: 'very-hard' },
+      ]
+    },
+    {
+      name: 'attempts',
+      type: 'number',
+      label: 'No. Of Attempts',
+      defaultValue: 0,
     },
   ],
 };

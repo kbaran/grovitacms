@@ -461,8 +461,16 @@ export interface Mocktestquestion {
         id?: string | null;
       }[]
     | null;
-  answer?: string | null;
   instituteId: string | Institute;
+  subject: string;
+  topicsCovered?:
+    | {
+        topic?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  difficulty?: ('easy' | 'medium' | 'hard' | 'very-hard') | null;
+  attempts?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -509,17 +517,9 @@ export interface Question {
         id?: string | null;
       }[]
     | null;
+  correctAnswer?: string | null;
   instituteId?: (string | null) | Institute;
   active?: boolean | null;
-  subject: string;
-  topicsCovered?:
-    | {
-        topic?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  difficulty?: ('easy' | 'medium' | 'hard' | 'veryhard') | null;
-  attempts?: number | null;
   updatedAt: string;
   createdAt: string;
 }

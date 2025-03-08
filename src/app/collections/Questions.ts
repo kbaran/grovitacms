@@ -46,7 +46,6 @@ export const Questions: CollectionConfig = {
         console.log("Before Validate - Incoming Data:", data);
         console.log("Logged-In User:", req.user);
 
-        // Ensure data exists
         data ??= {};
 
         if (req.user?.role === "accountmanager") {
@@ -66,7 +65,6 @@ export const Questions: CollectionConfig = {
       ({ data, req }) => {
         console.log("Before Change - Modified Data:", data);
 
-        // Ensure data exists
         data ??= {};
 
         if (req.user?.role === "accountmanager") {
@@ -135,13 +133,6 @@ export const Questions: CollectionConfig = {
       ],
     },
     {
-      name: "correctAnswer",
-      type: "text",
-      admin: {
-        condition: (data) => data.type === "text",
-      },
-    },
-    {
       name: "instituteId",
       type: "relationship",
       relationTo: "institute",
@@ -177,6 +168,41 @@ export const Questions: CollectionConfig = {
       type: "checkbox",
       label: "Active",
       defaultValue: true,
+    },
+    // New fields added
+    {
+      name: "subject",
+      type: "text",
+      required: true,
+      label: "Subject",
+    },
+    {
+      name: "topicsCovered",
+      type: "array",
+      label: "Topics Covered",
+      fields: [
+        {
+          name: "topic",
+          type: "text",
+        },
+      ],
+    },
+    {
+      name: "difficulty",
+      type: "select",
+      label: "Difficulty",
+      options: [
+        { label: "Easy", value: "easy" },
+        { label: "Medium", value: "medium" },
+        { label: "Hard", value: "hard" },
+        { label: "Very Hard", value: "veryhard" },
+      ],
+    },
+    {
+      name: "attempts",
+      type: "number",
+      label: "Attempts",
+      defaultValue: 0,
     },
   ],
 };

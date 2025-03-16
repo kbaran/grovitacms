@@ -31,6 +31,7 @@
     "babel-plugin-react-compiler": "0.0.0-experimental-48eb8f4-20240822",
     "cross-env": "^7.0.3",
     "crypto-js": "^4.2.0",
+    "express": "^4.21.2",
     "graphql": "^16.8.2",
     "imagekit": "^5.2.0",
     "jsonwebtoken": "^9.0.2",
@@ -43,6 +44,7 @@
   },
   "devDependencies": {
     "@payloadcms/graphql": "3.0.0-canary.0374de4",
+    "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20.14.9",
     "@types/react": "npm:types-react@19.0.0-rc.0",

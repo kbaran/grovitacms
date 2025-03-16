@@ -21,8 +21,8 @@ import { PricePlans } from '@/app/collections/PricePlans'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { Purchases } from '@/app/collections/Purchases'
 import { ExamCategory } from '@/app/collections/ExamCategory'
-import { MockTests } from '@/app/collections/MockTests'
 import { MockTestQuestions } from '@/app/collections/MockTextQuestions'
+import UserResponses from '@/app/collections/UserResponses'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -87,7 +87,7 @@ export default buildConfig({
     Purchases,
     ExamCategory,
     MockTestQuestions,
-    MockTests,
+    UserResponses,
     Questions,
     {
       slug: 'pages',

@@ -73,8 +73,8 @@ export default buildConfig({
   editor: lexicalEditor(),
   // collections: [Post, Campaign, User, Pages, Media],
   
-  csrf: ['http://localhost:3002','http://localhost:3003', 'https://onionpose.com', 'https://payload-3-0-pi.vercel.app','https://grovitacms.vercel.app','https://grovita.in'],
-  cors: ['http://localhost:3002','http://localhost:3003', 'https://onionpose.com', 'https://payload-3-0-pi.vercel.app','https://grovitacms.vercel.app','https://grovita.in'],
+  csrf: ['http://localhost:3002','http://localhost:3003', 'https://onionpose.com', 'https://payload-3-0-pi.vercel.app','https://grovitacms.vercel.app','https://grovita.in','https://glp-eta.vercel.app'],
+  cors: ['http://localhost:3002','http://localhost:3003', 'https://onionpose.com', 'https://payload-3-0-pi.vercel.app','https://grovitacms.vercel.app','https://grovita.in','https://glp-eta.vercel.app'],
   collections: [
     Users,
     Institute,

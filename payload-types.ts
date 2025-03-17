@@ -488,7 +488,9 @@ export interface Userresponse {
   topics?: string | null;
   difficulty: 'easy' | 'medium' | 'hard' | 'very-hard';
   timeSpent: number;
-  isCorrect: boolean;
+  isCorrect?: boolean | null;
+  isSkipped: boolean;
+  skipCount: number;
   updatedAt: string;
   createdAt: string;
 }

@@ -5,9 +5,23 @@ export const UserResponses: CollectionConfig = {
   slug: 'userresponses',
   access: {
     read: ({ req }: any) => {
-      if (!req.user) return false; // Only logged-in users can read
-      return { userId: { equals: req.user.id } }; // Users can see only their responses
-    },
+        // Always return true if using an admin API key
+        // if (req.headers.authorization === `Bearer ${process.env.PAYLOAD_API_KEY}`) {
+        //   return true;
+        // }
+  
+        console.log(req.user)
+        // For regular authenticated users
+        if (!req.user) return false;
+  
+        // Admins and account managers can read all responses
+        if (req.user.role === 'admin' || req.user.role === 'accountmanager') {
+          return true;
+        }
+  
+        // Regular users can only see their own responses
+        return { userId: { equals: req.user.id } };
+      },
     create: ({ req }) => !!req.user, // Only authenticated users can create responses
     update: ({ req }) => false, // Prevent users from modifying responses
     delete: ({ req }) => req?.user?.role === 'admin', // Only admins can delete
@@ -80,14 +94,28 @@ export const UserResponses: CollectionConfig = {
     {
       name: 'isCorrect', // ✅ Whether the answer was correct (0 = wrong, 1 = correct)
       type: 'checkbox',
-      required: true,
+      required: false,
       label: 'Correct Answer',
-      defaultValue: false,
     },
+    {
+        name: 'isSkipped', // ✅ Whether the answer was correct (0 = wrong, 1 = correct)
+        type: 'checkbox',
+        required: true,
+        label: 'Skip Question',
+        defaultValue: false,
+      },    
+      {
+        name: 'skipCount', // ✅ Time spent on the question (in seconds)
+        type: 'number',
+        required: true,
+        label: 'Times Skipped',
+        defaultValue: 0,
+      },      
   ],
   endpoints: [
+    // ADD RESPONSE ENDPOINT
     {
-      path: '/:add-response', // Fixed path format (removed colon)
+      path: '/:add-response',
       method: 'post',
       handler: async (req: any) => {
         try {
@@ -99,9 +127,17 @@ export const UserResponses: CollectionConfig = {
             if (req.user?.id) {
               data.userId = req.user.id;
             } else {
-              return Response.json(
-                { error: "User ID is required but not provided" },
-                { status: 400 }
+              return new Response(
+                JSON.stringify({ error: "User ID is required but not provided" }),
+                { 
+                  status: 400,
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                  }
+                }
               );
             }
           }
@@ -112,26 +148,38 @@ export const UserResponses: CollectionConfig = {
             data: data,
           });
           
-          return Response.json(
-            { message: `Data successfully added!`, result: data, responseId: response.id },
+          return new Response(
+            JSON.stringify({ 
+              message: `Data successfully added!`, 
+              result: data, 
+              responseId: response.id 
+            }),
             {
+              status: 200,
               headers: {
+                'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type',
-              },
-            },
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+              }
+            }
           );
         } catch (error) {
           console.error("Error saving response:", error);
-          return Response.json(
-            { error: error || "Failed to save response" },
-            { status: 500 }
+          return new Response(
+            JSON.stringify({ error: error || "Failed to save response" }),
+            { 
+              status: 500,
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+              }
+            }
           );
         }
       },
-    },
-  ],
+    }
+]
 };
 
 export default UserResponses;

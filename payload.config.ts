@@ -23,6 +23,8 @@ import { Purchases } from '@/app/collections/Purchases'
 import { ExamCategory } from '@/app/collections/ExamCategory'
 import { MockTestQuestions } from '@/app/collections/MockTextQuestions'
 import UserResponses from '@/app/collections/UserResponses'
+import { MockTestPurchases } from '@/app/collections/MockTestPurchases'
+import { MockTestPricePlans } from '@/app/collections/MockTestPricePlans'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -85,6 +87,8 @@ export default buildConfig({
     Consultation,
     PricePlans,
     Purchases,
+    MockTestPricePlans,
+    MockTestPurchases,
     ExamCategory,
     MockTestQuestions,
     UserResponses,

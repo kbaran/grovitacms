@@ -20,6 +20,8 @@ export interface Config {
     consultation: Consultation;
     priceplans: Priceplan;
     purchases: Purchase;
+    mocktestpriceplans: Mocktestpriceplan;
+    mocktestpurchases: Mocktestpurchase;
     examcategories: Examcategory;
     mocktestquestions: Mocktestquestion;
     userresponses: Userresponse;
@@ -412,6 +414,45 @@ export interface Purchase {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mocktestpriceplans".
+ */
+export interface Mocktestpriceplan {
+  id: string;
+  plan_title: string;
+  plan_id: string;
+  Frequency: string;
+  price_india: number;
+  sale_price_india?: number | null;
+  instituteId?: (string | null) | Institute;
+  active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mocktestpurchases".
+ */
+export interface Mocktestpurchase {
+  id: string;
+  user: string | User;
+  examCategory: string | Examcategory;
+  amountPaid: number;
+  currency: 'INR' | 'USD';
+  paymentStatus: 'pending' | 'success' | 'failed';
+  paymentType: 'one-time' | 'recurring';
+  razorpayOrderId?: string | null;
+  razorpaySubscriptionId?: string | null;
+  subscriptionStatus?: ('created' | 'active' | 'paused' | 'cancelled' | 'halted' | 'failed') | null;
+  subscriptionStartDate?: string | null;
+  subscriptionEndDate?: string | null;
+  billingCycle?: ('monthly' | 'quarterly' | 'semi-annual' | 'annual') | null;
+  razorpayPaymentId?: string | null;
+  razorpaySignature?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "examcategories".
  */
 export interface Examcategory {
@@ -584,6 +625,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'purchases';
         value: string | Purchase;
+      } | null)
+    | ({
+        relationTo: 'mocktestpriceplans';
+        value: string | Mocktestpriceplan;
+      } | null)
+    | ({
+        relationTo: 'mocktestpurchases';
+        value: string | Mocktestpurchase;
       } | null)
     | ({
         relationTo: 'examcategories';

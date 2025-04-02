@@ -38,13 +38,6 @@ export const MockTestPurchases: CollectionConfig = {
       required: true,
       label: "Purchased Exam Category",
     },
-    // {
-    //   name: "pricePlan",
-    //   type: "relationship",
-    //   relationTo: "priceplans",
-    //   required: true,
-    //   label: "Selected Price Plan",
-    // },
     {
       name: "amountPaid",
       type: "number",
@@ -106,15 +99,27 @@ export const MockTestPurchases: CollectionConfig = {
       }
     },
     {
+      name: "razorpayPlanId",
+      type: "text",
+      required: false,
+      label: "Razorpay Plan ID",
+      admin: {
+        condition: (data) => data.paymentType === 'recurring'
+      }
+    },
+    {
       name: "subscriptionStatus",
       type: "select",
       options: [
         { label: "Created", value: "created" },
+        { label: "Authenticated", value: "authenticated" },
         { label: "Active", value: "active" },
         { label: "Paused", value: "paused" },
         { label: "Cancelled", value: "cancelled" },
         { label: "Halted", value: "halted" },
         { label: "Failed", value: "failed" },
+        { label: "Completed", value: "completed" },
+        { label: "Expired", value: "expired" },
       ],
       required: false,
       label: "Subscription Status",
@@ -141,6 +146,62 @@ export const MockTestPurchases: CollectionConfig = {
       }
     },
     {
+      name: "currentPeriodStart",
+      type: "date",
+      required: false,
+      label: "Current Period Start",
+      admin: {
+        condition: (data) => data.paymentType === 'recurring'
+      }
+    },
+    {
+      name: "currentPeriodEnd",
+      type: "date",
+      required: false,
+      label: "Current Period End",
+      admin: {
+        condition: (data) => data.paymentType === 'recurring'
+      }
+    },
+    {
+      name: "nextPaymentAttempt",
+      type: "date",
+      required: false,
+      label: "Next Payment Attempt",
+      admin: {
+        condition: (data) => data.paymentType === 'recurring'
+      }
+    },
+    {
+      name: "failedPaymentCount",
+      type: "number",
+      defaultValue: 0,
+      required: false,
+      label: "Failed Payment Count",
+      admin: {
+        condition: (data) => data.paymentType === 'recurring'
+      }
+    },
+    {
+      name: "totalCycles",
+      type: "number",
+      required: false,
+      label: "Total Billing Cycles",
+      admin: {
+        condition: (data) => data.paymentType === 'recurring'
+      }
+    },
+    {
+      name: "completedCycles",
+      type: "number",
+      defaultValue: 0,
+      required: false,
+      label: "Completed Billing Cycles",
+      admin: {
+        condition: (data) => data.paymentType === 'recurring'
+      }
+    },
+    {
       name: "billingCycle",
       type: "select",
       options: [
@@ -155,6 +216,137 @@ export const MockTestPurchases: CollectionConfig = {
         condition: (data) => data.paymentType === 'recurring'
       }
     },
+    {
+      name: "cancellationReason",
+      type: "text",
+      required: false,
+      label: "Cancellation Reason",
+      admin: {
+        condition: (data) => data.paymentType === 'recurring' && ['cancelled', 'halted'].includes(data.subscriptionStatus)
+      }
+    },
+    {
+      name: "cancellationDate",
+      type: "date",
+      required: false,
+      label: "Cancellation Date",
+      admin: {
+        condition: (data) => data.paymentType === 'recurring' && ['cancelled', 'halted'].includes(data.subscriptionStatus)
+      }
+    },
+    // Payment history for recurring payments
+    {
+      name: "paymentHistory",
+      type: "array",
+      label: "Payment History",
+      admin: {
+        condition: (data) => data.paymentType === 'recurring'
+      },
+      fields: [
+        {
+          name: "paymentId",
+          type: "text",
+          required: true,
+          label: "Razorpay Payment ID"
+        },
+        {
+          name: "amount",
+          type: "number",
+          required: true,
+          label: "Amount"
+        },
+        {
+          name: "status",
+          type: "select",
+          options: [
+            { label: "Success", value: "success" },
+            { label: "Failed", value: "failed" },
+            { label: "Refunded", value: "refunded" },
+          ],
+          required: true,
+          label: "Status"
+        },
+        {
+          name: "paymentDate",
+          type: "date",
+          required: true,
+          label: "Payment Date"
+        },
+        {
+          name: "billingPeriodStart",
+          type: "date",
+          required: false,
+          label: "Billing Period Start"
+        },
+        {
+          name: "billingPeriodEnd",
+          type: "date",
+          required: false,
+          label: "Billing Period End"
+        },
+        {
+          name: "notes",
+          type: "text",
+          required: false,
+          label: "Notes"
+        }
+      ]
+    },
+    // User's payment method information
+    {
+      name: "paymentMethod",
+      type: "group",
+      label: "Payment Method",
+      admin: {
+        condition: (data) => data.paymentType === 'recurring'
+      },
+      fields: [
+        {
+          name: "method",
+          type: "select",
+          options: [
+            { label: "Credit Card", value: "credit_card" },
+            { label: "Debit Card", value: "debit_card" },
+            { label: "UPI", value: "upi" },
+            { label: "Net Banking", value: "netbanking" },
+            { label: "Wallet", value: "wallet" },
+            { label: "Other", value: "other" }
+          ],
+          required: false,
+          label: "Method Type"
+        },
+        {
+          name: "last4",
+          type: "text",
+          required: false,
+          label: "Last 4 digits"
+        },
+        {
+          name: "network",
+          type: "text",
+          required: false,
+          label: "Card Network"
+        },
+        {
+          name: "expiryMonth",
+          type: "number",
+          required: false,
+          label: "Expiry Month",
+          admin: {
+            condition: (data) => data.method === 'credit_card' || data.method === 'debit_card'
+          }
+        },
+        {
+          name: "expiryYear",
+          type: "number",
+          required: false,
+          label: "Expiry Year",
+          admin: {
+            condition: (data) => data.method === 'credit_card' || data.method === 'debit_card'
+          }
+        }
+      ]
+    },
     // Common fields for both payment types
     {
       name: "razorpayPaymentId",
@@ -167,6 +359,23 @@ export const MockTestPurchases: CollectionConfig = {
       type: "text",
       required: false,
       label: "Razorpay Signature",
+    },
+    {
+      name: "notes",
+      type: "json",
+      label: "Additional Data",
+      admin: {
+        description: "Additional data or notes related to this purchase/subscription"
+      }
+    },
+    {
+      name: "redirectPath",
+      type: "text",
+      required: false,
+      label: "Redirect Path",
+      admin: {
+        description: "Path to redirect after payment completion"
+      }
     },
     {
       name: "createdAt",
@@ -314,6 +523,202 @@ export const MockTestPurchases: CollectionConfig = {
           );
         }
       },
+    },
+    // RECORD SUBSCRIPTION PAYMENT ENDPOINT
+    {
+      path: '/record-subscription-payment/:id',
+      method: 'post',
+      handler: async (req: any) => {
+        try {
+          const url = new URL(req.url);
+          const pathParts = url.pathname.split('/');
+          const id = pathParts[pathParts.length - 1];
+          const data = await req?.json();
+          
+          if (!id) {
+            return new Response(
+              JSON.stringify({ error: "Purchase ID is required" }),
+              { 
+                status: 400,
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Access-Control-Allow-Origin': '*',
+                  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                }
+              }
+            );
+          }
+          
+          if (!data.paymentId || !data.amount || !data.status) {
+            return new Response(
+              JSON.stringify({ error: "Payment ID, amount, and status are required" }),
+              { 
+                status: 400,
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Access-Control-Allow-Origin': '*',
+                  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                }
+              }
+            );
+          }
+          
+          // First, get the existing purchase
+          const existingPurchase = await req.payload.findByID({
+            collection: 'mocktestpurchases',
+            id: id
+          });
+          
+          if (!existingPurchase) {
+            return new Response(
+              JSON.stringify({ error: "Purchase not found" }),
+              { 
+                status: 404,
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Access-Control-Allow-Origin': '*'
+                }
+              }
+            );
+          }
+          
+          // Create payment history entry
+          const paymentEntry = {
+            paymentId: data.paymentId,
+            amount: data.amount,
+            status: data.status,
+            paymentDate: data.paymentDate || new Date().toISOString(),
+            billingPeriodStart: data.billingPeriodStart,
+            billingPeriodEnd: data.billingPeriodEnd,
+            notes: data.notes
+          };
+          
+          // Prepare update data
+          const updateData: any = {
+            paymentHistory: [...(existingPurchase.paymentHistory || []), paymentEntry]
+          };
+          
+          // Update subscription fields if provided
+          if (data.currentPeriodStart) updateData.currentPeriodStart = data.currentPeriodStart;
+          if (data.currentPeriodEnd) updateData.currentPeriodEnd = data.currentPeriodEnd;
+          if (data.nextPaymentAttempt) updateData.nextPaymentAttempt = data.nextPaymentAttempt;
+          if (data.subscriptionStatus) updateData.subscriptionStatus = data.subscriptionStatus;
+          
+          // Increment completed cycles if successful payment
+          if (data.status === 'success') {
+            updateData.completedCycles = (existingPurchase.completedCycles || 0) + 1;
+            // Reset failed payment count on successful payment
+            updateData.failedPaymentCount = 0;
+          } else if (data.status === 'failed') {
+            // Increment failed payment count
+            updateData.failedPaymentCount = (existingPurchase.failedPaymentCount || 0) + 1;
+          }
+          
+          // Update the purchase with the new payment history
+          const updatedPurchase = await req.payload.update({
+            collection: 'mocktestpurchases',
+            id: id,
+            data: updateData
+          });
+          
+          return new Response(
+            JSON.stringify({ 
+              message: `Payment record added successfully!`, 
+              purchase: updatedPurchase 
+            }),
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+              }
+            }
+          );
+        } catch (error) {
+          console.error("Error recording subscription payment:", error);
+          return new Response(
+            JSON.stringify({ error: error || "Failed to record payment" }),
+            { 
+              status: 500,
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+              }
+            }
+          );
+        }
+      }
+    },
+    // CANCEL SUBSCRIPTION ENDPOINT
+    {
+      path: '/cancel-subscription/:id',
+      method: 'post',
+      handler: async (req: any) => {
+        try {
+          const url = new URL(req.url);
+          const pathParts = url.pathname.split('/');
+          const id = pathParts[pathParts.length - 1];
+          const data = await req?.json();
+          
+          if (!id) {
+            return new Response(
+              JSON.stringify({ error: "Purchase ID is required" }),
+              { 
+                status: 400,
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Access-Control-Allow-Origin': '*',
+                  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                }
+              }
+            );
+          }
+          
+          // Update the subscription status
+          const updatedPurchase = await req.payload.update({
+            collection: 'mocktestpurchases',
+            id: id,
+            data: {
+              subscriptionStatus: 'cancelled',
+              cancellationReason: data.reason || 'User requested cancellation',
+              cancellationDate: new Date().toISOString()
+            }
+          });
+          
+          return new Response(
+            JSON.stringify({ 
+              message: `Subscription cancelled successfully!`, 
+              purchase: updatedPurchase 
+            }),
+            {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+              }
+            }
+          );
+        } catch (error) {
+          console.error("Error cancelling subscription:", error);
+          return new Response(
+            JSON.stringify({ error: error || "Failed to cancel subscription" }),
+            { 
+              status: 500,
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+              }
+            }
+          );
+        }
+      }
     }
   ]
 };

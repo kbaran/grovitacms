@@ -21,6 +21,7 @@ export interface Config {
     priceplans: Priceplan;
     purchases: Purchase;
     mocktestpriceplans: Mocktestpriceplan;
+    examsyllabus: Examsyllabus;
     mocktestpurchases: Mocktestpurchase;
     examcategories: Examcategory;
     mocktestquestions: Mocktestquestion;
@@ -430,26 +431,24 @@ export interface Mocktestpriceplan {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "mocktestpurchases".
+ * via the `definition` "examsyllabus".
  */
-export interface Mocktestpurchase {
+export interface Examsyllabus {
   id: string;
-  user: string | User;
+  syllabus: string;
   examCategory: string | Examcategory;
-  amountPaid: number;
-  currency: 'INR' | 'USD';
-  paymentStatus: 'pending' | 'success' | 'failed';
-  paymentType: 'one-time' | 'recurring';
-  razorpayOrderId?: string | null;
-  razorpaySubscriptionId?: string | null;
-  subscriptionStatus?: ('created' | 'active' | 'paused' | 'cancelled' | 'halted' | 'failed') | null;
-  subscriptionStartDate?: string | null;
-  subscriptionEndDate?: string | null;
-  billingCycle?: ('monthly' | 'quarterly' | 'semi-annual' | 'annual') | null;
-  razorpayPaymentId?: string | null;
-  razorpaySignature?: string | null;
-  createdAt: string;
+  subject: 'Physics' | 'Mathematics' | 'Inorganic Chemistry' | 'Organic Chemistry' | 'Physical Chemistry';
+  topics: string;
+  topicsCovered?:
+    | {
+        topic: string;
+        id?: string | null;
+      }[]
+    | null;
+  instituteId: string | Institute;
+  status?: ('active' | 'draft' | 'archived') | null;
   updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -485,6 +484,69 @@ export interface Examcategory {
   instituteId: string | Institute;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mocktestpurchases".
+ */
+export interface Mocktestpurchase {
+  id: string;
+  user: string | User;
+  examCategory: string | Examcategory;
+  amountPaid: number;
+  currency: 'INR' | 'USD';
+  paymentStatus: 'pending' | 'success' | 'failed';
+  paymentType: 'one-time' | 'recurring';
+  razorpayOrderId?: string | null;
+  razorpaySubscriptionId?: string | null;
+  razorpayPlanId?: string | null;
+  subscriptionStatus?:
+    | ('created' | 'authenticated' | 'active' | 'paused' | 'cancelled' | 'halted' | 'failed' | 'completed' | 'expired')
+    | null;
+  subscriptionStartDate?: string | null;
+  subscriptionEndDate?: string | null;
+  currentPeriodStart?: string | null;
+  currentPeriodEnd?: string | null;
+  nextPaymentAttempt?: string | null;
+  failedPaymentCount?: number | null;
+  totalCycles?: number | null;
+  completedCycles?: number | null;
+  billingCycle?: ('monthly' | 'quarterly' | 'semi-annual' | 'annual') | null;
+  cancellationReason?: string | null;
+  cancellationDate?: string | null;
+  paymentHistory?:
+    | {
+        paymentId: string;
+        amount: number;
+        status: 'success' | 'failed' | 'refunded';
+        paymentDate: string;
+        billingPeriodStart?: string | null;
+        billingPeriodEnd?: string | null;
+        notes?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  paymentMethod?: {
+    method?: ('credit_card' | 'debit_card' | 'upi' | 'netbanking' | 'wallet' | 'other') | null;
+    last4?: string | null;
+    network?: string | null;
+    expiryMonth?: number | null;
+    expiryYear?: number | null;
+  };
+  razorpayPaymentId?: string | null;
+  razorpaySignature?: string | null;
+  notes?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  redirectPath?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -629,6 +691,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'mocktestpriceplans';
         value: string | Mocktestpriceplan;
+      } | null)
+    | ({
+        relationTo: 'examsyllabus';
+        value: string | Examsyllabus;
       } | null)
     | ({
         relationTo: 'mocktestpurchases';

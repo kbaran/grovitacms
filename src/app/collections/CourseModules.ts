@@ -16,9 +16,8 @@ const handleInstituteId = async ({
   data ??= {};
 
   const user = req.user as User;
-
-  if (user?.role === 'accountmanager') {
-    if (!user.instituteId) {
+  if (user?.role === 'accountmanager' || true) {
+    if (!user?.instituteId) {
       throw new Error('Account managers must have an associated institute.');
     }
     data.instituteId =

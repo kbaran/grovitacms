@@ -152,13 +152,151 @@ export const ExamSyllabus: CollectionConfig = {
     },
   ],
   endpoints: [
+    // Original endpoint (keep for backward compatibility)
     {
       path: "/by-exam/:examId",
       method: "get",
       handler: async (req: any) => {
         try {
           const payload = req.payload;
-          const examId = req.params.examId;
+          
+          // Debug information
+          console.log("Request URL:", req.url);
+          console.log("Request params:", req.params);
+          console.log("Request query:", req.query);
+          
+          // Get examId using alternative methods
+          let examId;
+          
+          // Try to get from URL path (manual parsing)
+          if (req.url) {
+            const urlParts = req.url.split('/');
+            examId = urlParts[urlParts.length - 1];
+            
+            // Remove query parameters if present
+            if (examId && examId.includes('?')) {
+              examId = examId.split('?')[0];
+            }
+          }
+          
+          // Fallback to req.params or query parameter or default
+          if (!examId) {
+            examId = req.params?.examId || req.query?.examId || "67c43634c7d89d6e4da15d11";
+          }
+          
+          console.log("Extracted examId:", examId);
+          
+          if (!examId) {
+            return Response.json(
+              { message: "Exam ID is required", error: "Missing examId parameter" },
+              { status: 400 }
+            );
+          }
+          
+          // Fetch all syllabus documents for this exam category with increased limit
+          // Set a very high limit to ensure all records are retrieved
+          const syllabusData = await payload.find({
+            collection: "examsyllabus",
+            where: {
+              examCategory: {
+                equals: examId
+              },
+              status: {
+                equals: 'active'
+              }
+            },
+            depth: 0, // Don't need to populate relationships
+            limit: 1000, // Increased limit for large datasets
+            pagination: false // Disable pagination
+          });
+          
+          console.log(`Found ${syllabusData.docs.length} syllabus records for exam ID ${examId}`);
+          
+          if (!syllabusData.docs || syllabusData.docs.length === 0) {
+            return Response.json(
+              { message: `No syllabus found for exam ID: ${examId}`, result: [] },
+              { status: 200 }
+            );
+          }
+          
+          // Transform data for easier consumption by frontend
+          const syllabusResult = syllabusData.docs.map((doc: any) => {
+            // Parse topics string into array
+            const topicsList = doc.topics
+              ? doc.topics.split(',').map((t: string) => t.trim()).filter((t: string) => t.length > 0)
+              : [];
+            
+            console.log(`Processing subject ${doc.subject} with ${topicsList.length} topics`);
+              
+            return {
+              id: doc.id,
+              subject: doc.subject,
+              topics: topicsList,
+              description: doc.description || '',
+              difficulty: doc.difficulty || 'medium',
+              recommendedTimePerQuestion: doc.recommendedTimePerQuestion || 120
+            };
+          });
+          
+          // Group by subject
+          const groupedBySubject: Record<string, any> = {};
+          
+          syllabusResult.forEach((syllabus: any) => {
+            if (!groupedBySubject[syllabus.subject]) {
+              groupedBySubject[syllabus.subject] = {
+                subject: syllabus.subject,
+                topics: [],
+                difficulty: syllabus.difficulty,
+                recommendedTimePerQuestion: syllabus.recommendedTimePerQuestion
+              };
+            }
+            
+            // Append topics
+            groupedBySubject[syllabus.subject].topics = [
+              ...groupedBySubject[syllabus.subject].topics,
+              ...syllabus.topics
+            ];
+          });
+          
+          // Log the final result structure
+          console.log(`Grouped into ${Object.keys(groupedBySubject).length} subjects`);
+          Object.keys(groupedBySubject).forEach(subject => {
+            console.log(`${subject}: ${groupedBySubject[subject].topics.length} topics`);
+          });
+          
+          return Response.json(
+            { 
+              message: `Syllabus data fetched for exam ID: ${examId}`,
+              result: Object.values(groupedBySubject)
+            },
+            {
+              headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type',
+              },
+            }
+          );
+        } catch (error) {
+          console.error("❌ Error fetching syllabus data:", error);
+          return Response.json(
+            { message: `Error fetching syllabus data`, error },
+            { status: 500 }
+          );
+        }
+      },
+    },
+    
+    // New endpoint using query parameters - also updated with the same fix
+    {
+      path: "/get-syllabus",
+      method: "get",
+      handler: async (req: any) => {
+        try {
+          const payload = req.payload;
+          const examId = req.query?.examId || "67c43634c7d89d6e4da15d11";
+          
+          console.log("Using examId from query:", examId);
           
           if (!examId) {
             return Response.json(
@@ -178,8 +316,12 @@ export const ExamSyllabus: CollectionConfig = {
                 equals: 'active'
               }
             },
-            depth: 0 // Don't need to populate relationships
+            depth: 0, // Don't need to populate relationships
+            limit: 1000, // Increased limit
+            pagination: false // Disable pagination
           });
+          
+          console.log(`Found ${syllabusData.docs.length} syllabus records for exam ID ${examId}`);
           
           if (!syllabusData.docs || syllabusData.docs.length === 0) {
             return Response.json(
@@ -225,6 +367,12 @@ export const ExamSyllabus: CollectionConfig = {
             ];
           });
           
+          // Log the final result structure
+          console.log(`Grouped into ${Object.keys(groupedBySubject).length} subjects`);
+          Object.keys(groupedBySubject).forEach(subject => {
+            console.log(`${subject}: ${groupedBySubject[subject].topics.length} topics`);
+          });
+          
           return Response.json(
             { 
               message: `Syllabus data fetched for exam ID: ${examId}`,
@@ -247,6 +395,101 @@ export const ExamSyllabus: CollectionConfig = {
         }
       },
     },
+    
+    // New specialized endpoint for subject popup (optimized for front-end)
+    {
+      path: "/subject-popup",
+      method: "get",
+      handler: async (req: any) => {
+        try {
+          const payload = req.payload;
+          const examId = req.query?.examId || "67c43634c7d89d6e4da15d11";
+          
+          console.log("Fetching subject data for popup, examId:", examId);
+          
+          if (!examId) {
+            return Response.json(
+              { message: "Exam ID is required", error: "Missing examId parameter" },
+              { status: 400 }
+            );
+          }
+          
+          // Fetch all syllabus documents for this exam category
+          const syllabusData = await payload.find({
+            collection: "examsyllabus",
+            where: {
+              examCategory: {
+                equals: examId
+              },
+              status: {
+                equals: 'active'
+              }
+            },
+            depth: 0,
+            limit: 1000,
+            pagination: false
+          });
+          
+          if (!syllabusData.docs || syllabusData.docs.length === 0) {
+            return Response.json(
+              { message: `No syllabus found for exam ID: ${examId}`, result: [] },
+              { status: 200 }
+            );
+          }
+          
+          // Transform and group by subject
+          const groupedBySubject: Record<string, any> = {};
+          
+          syllabusData.docs.forEach((doc: any) => {
+            const topicsList = doc.topics
+              ? doc.topics.split(',').map((t: string) => t.trim()).filter((t: string) => t.length > 0)
+              : [];
+              
+            if (!groupedBySubject[doc.subject]) {
+              groupedBySubject[doc.subject] = {
+                subject: doc.subject,
+                topics: [],
+                difficulty: doc.difficulty || 'medium',
+                recommendedTimePerQuestion: doc.recommendedTimePerQuestion || 120
+              };
+            }
+            
+            // Append topics
+            groupedBySubject[doc.subject].topics = [
+              ...groupedBySubject[doc.subject].topics,
+              ...topicsList
+            ];
+          });
+          
+          // Remove duplicate topics (can happen when merging from multiple records)
+          Object.keys(groupedBySubject).forEach(subject => {
+            groupedBySubject[subject].topics = [...new Set(groupedBySubject[subject].topics)];
+          });
+          
+          console.log(`Processed ${Object.keys(groupedBySubject).length} subjects for popup`);
+          
+          return Response.json(
+            { 
+              message: `Syllabus data fetched for exam ID: ${examId}`,
+              result: Object.values(groupedBySubject)
+            },
+            {
+              headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type',
+              },
+            }
+          );
+        } catch (error) {
+          console.error("❌ Error fetching subject popup data:", error);
+          return Response.json(
+            { message: `Error fetching subject data`, error },
+            { status: 500 }
+          );
+        }
+      },
+    }
   ]
 };
 

@@ -567,6 +567,7 @@ export interface Mocktestquestion {
   instituteId: string | Institute;
   examCategoryId: string | Examcategory;
   subject: string;
+  syllabus: string;
   topicsCovered?:
     | {
         topic?: string | null;

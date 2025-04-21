@@ -64,6 +64,15 @@ export const ExamSyllabus: CollectionConfig = {
       },
     },
     {
+      name: 'weightage',
+      type: 'number',
+      required: false, // Optional field
+      label: 'Weightage (%)',
+      admin: {
+        description: 'Weightage of the chapter (can include decimals)',
+      },
+    },    
+    {
       name: 'examCategory',
       type: 'relationship',
       relationTo: 'examcategories',

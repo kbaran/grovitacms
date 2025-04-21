@@ -436,6 +436,7 @@ export interface Mocktestpriceplan {
 export interface Examsyllabus {
   id: string;
   syllabus: string;
+  weightage?: number | null;
   examCategory: string | Examcategory;
   subject: 'Physics' | 'Mathematics' | 'Inorganic Chemistry' | 'Organic Chemistry' | 'Physical Chemistry';
   topics: string;

@@ -1288,7 +1288,7 @@
     find-node-modules "^2.1.3"
     range-parser "^1.2.1"
 
-"@payloadcms/richtext-lexical@3.0.0-canary.0374de4":
+"@payloadcms/richtext-lexical@^3.0.0-canary.0374de4":
   version "3.0.0-canary.0374de4"
   resolved "https://registry.npmjs.org/@payloadcms/richtext-lexical/-/richtext-lexical-3.0.0-canary.0374de4.tgz"
   integrity sha512-HPoWH4T73+UvDIBhpV4AAIRBdf7ODqGo9HgUPd2ts1gYOa0bsKHcFFiMUfyfH3dUAAbf/gQxOyz+NhdTl8/Rxg==

@@ -67,6 +67,12 @@ export const UserResponses: CollectionConfig = {
       label: 'Subject',
     },
     {
+      name: 'syllabus', // ✅ Subject name
+      type: 'text',
+      required: true,
+      label: 'Syllabus',
+    },
+    {
       name: 'topics', // ✅ Topics covered (comma-separated)
       type: 'text',
       required: false,

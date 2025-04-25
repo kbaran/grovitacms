@@ -3,6 +3,7 @@ import type { Response, NextFunction } from 'express';
 import type { CollectionConfig } from 'payload';
 import { addDataAndFileToRequest } from '@payloadcms/next/utilities';
 import axios from 'axios';
+import { recommendQuestionsFromResume } from "../utils/questionRecommender";
 
 export const MockTestQuestions: CollectionConfig = {
   slug: 'mocktestquestions',
@@ -159,224 +160,176 @@ export const MockTestQuestions: CollectionConfig = {
           const payload = req.payload;
           const subjectFilter = req.query.subject;
           const syllabusFilter = req.query.syllabus ? JSON.parse(req.query.syllabus) : null;
-          console.log("🔥 Received syllabus:", req.query.syllabus);
           const incorrectOnly = req.query.incorrectOnly === "true";
           const skippedOnly = req.query.skippedOnly === "true";
-    
-          // ✅ Get previously attempted question IDs from query params
           const attemptedQuestions = req.query.attempted ? JSON.parse(req.query.attempted) : [];
-          
+      
+          const userId = req.user?.id || req.query.userId;
+          console.log("🔥 [REQ] User ID:", userId);
+          console.log("🛡️ Auth Header:", req.headers.authorization);
+          console.log("👤 Decoded user object:", req.user);
+          console.log("🔥 [REQ] User ID:", userId);
+          console.log("📚 [REQ] Subject Filter:", subjectFilter);
+          console.log("🧾 [REQ] Syllabus Filter:", syllabusFilter);
+          console.log("⏭️ [REQ] Incorrect Only:", incorrectOnly, "| Skipped Only:", skippedOnly);
+          console.log("🧪 [REQ] Attempted Questions:", attemptedQuestions.length);
+      
           let questionToReturn = null;
-    
+      
           // If requesting incorrect questions
-          if (incorrectOnly && req.user?.id) {
-            // Find incorrect responses for this user
+          if (incorrectOnly && userId) {
             const incorrectResponses = await payload.find({
               collection: "userresponses",
               where: {
                 and: [
-                  {
-                    isCorrect: {
-                      equals: false
-                    }
-                  },
-                  {
-                    isSkipped: {
-                      equals: false
-                    }
-                  },
-                  {
-                    userId: {
-                      equals: req.user.id
-                    }
-                  },
-                  // Add subject filter if provided
-                  ...(subjectFilter ? [{
-                    subject: {
-                      equals: subjectFilter
-                    }
-                  }] : [])
+                  { isCorrect: { equals: false } },
+                  { isSkipped: { equals: false } },
+                  { userId: { equals: userId } },
+                  ...(subjectFilter ? [{ subject: { equals: subjectFilter } }] : [])
                 ]
               },
               limit: 1000,
               depth: 2
             });
-            
-            if (incorrectResponses.docs && incorrectResponses.docs.length > 0) {
-              // Get the question IDs from the incorrect responses
-              const incorrectQuestionIds = incorrectResponses.docs.map((response: any) => 
-                typeof response.questionId === 'object' ? response.questionId.id : response.questionId
+      
+            if (incorrectResponses.docs?.length) {
+              const incorrectQuestionIds = incorrectResponses.docs.map((r: any) =>
+                typeof r.questionId === 'object' ? r.questionId.id : r.questionId
               ).filter(Boolean);
-              
-              // Find those questions in the questions collection
+      
               const whereCondition: any = {
-                id: {
-                  in: incorrectQuestionIds
-                }
+                id: { in: incorrectQuestionIds },
+                ...(syllabusFilter?.length ? { syllabus: { in: syllabusFilter } } : {})
               };
-              
-              // Add syllabus filter if provided
-              if (syllabusFilter && syllabusFilter.length > 0) {
-                whereCondition.syllabus = {
-                  in: syllabusFilter
-                };
-              }
-              
+      
               const incorrectQuestions = await payload.find({
                 collection: "mocktestquestions",
                 where: whereCondition,
                 limit: 1000
               });
-              
-              if (incorrectQuestions.docs && incorrectQuestions.docs.length > 0) {
-                // Select a random incorrect question
+      
+              if (incorrectQuestions.docs?.length) {
                 const randomIndex = Math.floor(Math.random() * incorrectQuestions.docs.length);
                 questionToReturn = incorrectQuestions.docs[randomIndex];
               }
             }
           }
+      
           // If requesting skipped questions
-          else if (skippedOnly && req.user?.id) {
-            // Find skipped questions for this user
+          else if (skippedOnly && userId) {
             const skippedResponses = await payload.find({
               collection: "userresponses",
               where: {
                 and: [
-                  {
-                    isSkipped: {
-                      equals: true
-                    }
-                  },
-                  {
-                    userId: {
-                      equals: req.user.id
-                    }
-                  },
-                  // Add subject filter if provided
-                  ...(subjectFilter ? [{
-                    subject: {
-                      equals: subjectFilter
-                    }
-                  }] : [])
+                  { isSkipped: { equals: true } },
+                  { userId: { equals: userId } },
+                  ...(subjectFilter ? [{ subject: { equals: subjectFilter } }] : [])
                 ]
               },
               limit: 1000,
               depth: 2
             });
-            
-            if (skippedResponses.docs && skippedResponses.docs.length > 0) {
-              // Get the question IDs from the skipped responses
-              const skippedQuestionIds = skippedResponses.docs.map((response: any) => 
-                typeof response.questionId === 'object' ? response.questionId.id : response.questionId
+      
+            if (skippedResponses.docs?.length) {
+              const skippedQuestionIds = skippedResponses.docs.map((r: any) =>
+                typeof r.questionId === 'object' ? r.questionId.id : r.questionId
               ).filter(Boolean);
-              
-              // Find those questions in the questions collection
+      
               const whereCondition: any = {
-                id: {
-                  in: skippedQuestionIds
-                }
+                id: { in: skippedQuestionIds },
+                ...(syllabusFilter?.length ? { syllabus: { in: syllabusFilter } } : {})
               };
-              
-              // Add syllabus filter if provided
-              if (syllabusFilter && syllabusFilter.length > 0) {
-                whereCondition.syllabus = {
-                  in: syllabusFilter
-                };
-              }
-              
+      
               const skippedQuestions = await payload.find({
                 collection: "mocktestquestions",
                 where: whereCondition,
                 limit: 1000
               });
-              
-              if (skippedQuestions.docs && skippedQuestions.docs.length > 0) {
-                // Select a random skipped question
+      
+              if (skippedQuestions.docs?.length) {
                 const randomIndex = Math.floor(Math.random() * skippedQuestions.docs.length);
                 questionToReturn = skippedQuestions.docs[randomIndex];
               }
             }
           }
-    
-          // If no question was found with the special filters, proceed with normal question selection
+      
+          // Fallback to personalized recommender
           if (!questionToReturn) {
-            // ✅ Build the query conditions
             const whereCondition: any = {
-              id: {
-                not_in: attemptedQuestions,
-              },
+              id: { not_in: attemptedQuestions },
+              ...(subjectFilter && { subject: { equals: subjectFilter } }),
+              ...(syllabusFilter?.length && { syllabus: { in: syllabusFilter } })
             };
-            
-            // ✅ Add subject filter if provided
-            if (subjectFilter) {
-              whereCondition.subject = {
-                equals: subjectFilter
-              };
-            }
-            
-            // ✅ Add syllabus filter if provided
-            if (syllabusFilter && syllabusFilter.length > 0) {
-              whereCondition.syllabus = {
-                in: syllabusFilter
-              };
-            }
-    
-            // ✅ Fetch questions based on conditions
+      
+            console.log("🔍 Fetching unattempted questions with:", JSON.stringify(whereCondition, null, 2));
+      
             const allQuestions = await payload.find({
               collection: "mocktestquestions",
               where: whereCondition,
-              limit: 1000, // ✅ Fetch more questions to ensure randomness
+              limit: 1000
             });
-    
-            if (!allQuestions.docs || allQuestions.docs.length === 0) {
+      
+            console.log("📦 Found", allQuestions.docs?.length, "unattempted questions");
+      
+            const userResume = await payload.find({
+              collection: "userlearningresume",
+              where: { userId: { equals: userId } },
+              limit: 1000
+            });
+      
+            console.log("🧠 Found", userResume.docs?.length, "resume entries");
+      
+            if (!userResume?.docs || !allQuestions?.docs) {
               return Response.json(
-                { 
-                  message: subjectFilter 
-                    ? `No questions found for subject: ${subjectFilter}` 
-                    : "No results found", 
-                  result: null 
-                },
+                { message: "Resume or questions not found", result: null },
+                { status: 500 }
+              );
+            }
+      
+            const personalizedPool = recommendQuestionsFromResume(userResume.docs, allQuestions.docs, 30);
+            console.log("🎯 Personalized pool size:", personalizedPool.length);
+      
+           
+
+            // 💡 Fallback to just random from filtered question bank
+            if (!personalizedPool.length && allQuestions.docs.length) {
+              console.warn("⚠️ No personalized match from resume — falling back to filtered random");
+              
+              const randomIndex = Math.floor(Math.random() * allQuestions.docs.length);
+              questionToReturn = allQuestions.docs[randomIndex];
+            
+              return Response.json(
+                { message: "Fallback question fetched from filtered set", result: questionToReturn },
                 {
                   headers: {
                     'Access-Control-Allow-Origin': '*',
                     'Access-Control-Allow-Methods': 'GET, OPTIONS',
-                    'Access-Control-Allow-Headers': 'Content-Type',
-                  },
+                    'Access-Control-Allow-Headers': 'Content-Type'
+                  }
                 }
               );
             }
-    
-            // ✅ Select a truly random question
-            const randomIndex = Math.floor(Math.random() * allQuestions.docs.length);
-            questionToReturn = allQuestions.docs[randomIndex];
+      
+            const randomIndex = Math.floor(Math.random() * personalizedPool.length);
+            questionToReturn = personalizedPool[randomIndex];
+            console.log("✅ Picked question ID:", questionToReturn?.id);
           }
-    
-          // Determine the appropriate message based on filters
+      
+          // Final response
           let message = "Next question fetched!";
-          if (subjectFilter) {
-            message = `Next question fetched for subject: ${subjectFilter}!`;
-          }
-          if (syllabusFilter && syllabusFilter.length > 0) {
-            message = `${message} (Filtered by syllabus)`;
-          }
-          if (incorrectOnly) {
-            message = "Returning previously incorrect question";
-          }
-          if (skippedOnly) {
-            message = "Returning previously skipped question";
-          }
-    
+          if (subjectFilter) message = `Next question fetched for subject: ${subjectFilter}!`;
+          if (syllabusFilter?.length) message += " (Filtered by syllabus)";
+          if (incorrectOnly) message = "Returning previously incorrect question";
+          if (skippedOnly) message = "Returning previously skipped question";
+      
           return Response.json(
-            { 
-              message: message, 
-              result: questionToReturn 
-            },
+            { message, result: questionToReturn },
             {
               headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type',
-              },
+                'Access-Control-Allow-Headers': 'Content-Type'
+              }
             }
           );
         } catch (error) {
@@ -387,6 +340,7 @@ export const MockTestQuestions: CollectionConfig = {
           );
         }
       },
+      
     },
     
     // New endpoint following the structure of UserResponses collection

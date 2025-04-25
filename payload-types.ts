@@ -25,6 +25,7 @@ export interface Config {
     mocktestpurchases: Mocktestpurchase;
     examcategories: Examcategory;
     mocktestquestions: Mocktestquestion;
+    userlearningresume: Userlearningresume;
     userresponses: Userresponse;
     questions: Question;
     pages: Page;
@@ -582,6 +583,41 @@ export interface Mocktestquestion {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "userlearningresume".
+ */
+export interface Userlearningresume {
+  id: string;
+  userId: string;
+  subject: string;
+  chapter: string;
+  chapterWeightage?: number | null;
+  topics?:
+    | {
+        topic: string;
+        masteryScore: number;
+        accuracy?: number | null;
+        avgTime?: number | null;
+        attempts?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  totalQuestions?: number | null;
+  skippedCount?: number | null;
+  incorrectCount?: number | null;
+  masteryScore?: number | null;
+  AIRecommendationScore?: number | null;
+  tags?:
+    | {
+        tag?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  lastActivityDate?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "userresponses".
  */
 export interface Userresponse {
@@ -590,6 +626,7 @@ export interface Userresponse {
   questionId: string | Mocktestquestion;
   categoryId: string | Examcategory;
   subject: string;
+  syllabus: string;
   topics?: string | null;
   difficulty: 'easy' | 'medium' | 'hard' | 'very-hard';
   timeSpent: number;
@@ -709,6 +746,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'mocktestquestions';
         value: string | Mocktestquestion;
+      } | null)
+    | ({
+        relationTo: 'userlearningresume';
+        value: string | Userlearningresume;
       } | null)
     | ({
         relationTo: 'userresponses';

@@ -27,6 +27,8 @@ export interface Config {
     mocktestquestions: Mocktestquestion;
     userlearningresume: Userlearningresume;
     userresponses: Userresponse;
+    studentregistrations: Studentregistration;
+    instituteleads: Institutelead;
     questions: Question;
     pages: Page;
     media: Media;
@@ -638,6 +640,38 @@ export interface Userresponse {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "studentregistrations".
+ */
+export interface Studentregistration {
+  id: string;
+  studentName: string;
+  studentEmail?: string | null;
+  studentPhone?: string | null;
+  currentClass: '9' | '10' | '11' | '12';
+  targetExamYear?: ('2025' | '2026' | '2027' | '2028' | '2029' | '2030') | null;
+  goal?: string | null;
+  guardianName?: string | null;
+  guardianPhone?: string | null;
+  guardianEmail?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "instituteleads".
+ */
+export interface Institutelead {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  instituteName: string;
+  city: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "questions".
  */
 export interface Question {
@@ -754,6 +788,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'userresponses';
         value: string | Userresponse;
+      } | null)
+    | ({
+        relationTo: 'studentregistrations';
+        value: string | Studentregistration;
+      } | null)
+    | ({
+        relationTo: 'instituteleads';
+        value: string | Institutelead;
       } | null)
     | ({
         relationTo: 'questions';

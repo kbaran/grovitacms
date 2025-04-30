@@ -27,6 +27,8 @@ import { MockTestPurchases } from '@/app/collections/MockTestPurchases'
 import { MockTestPricePlans } from '@/app/collections/MockTestPricePlans'
 import ExamSyllabus from '@/app/collections/ExamSyllabus'
 import UserLearningResume from '@/app/collections/UserLearningResume'
+import StudentRegistrations from '@/app/collections/StudentRegistration'
+import InstituteLeads from '@/app/collections/InstituteLeads'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -96,6 +98,8 @@ export default buildConfig({
     MockTestQuestions,
     UserLearningResume,
     UserResponses,
+    StudentRegistrations,
+    InstituteLeads,
     Questions,
     {
       slug: 'pages',

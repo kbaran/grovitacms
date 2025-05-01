@@ -89,6 +89,61 @@ export const Users: CollectionConfig = {
       label: 'Active',
       defaultValue: true,
     },
+    {
+      name: 'xp',
+      type: 'number',
+      label: 'XP',
+      defaultValue: 0,
+      required: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Total experience points earned by the user.',
+      },
+    },
+    {
+      name: 'xpSpent',
+      type: 'number',
+      label: 'XP Spent',
+      defaultValue: 0,
+      required: true,
+      admin: {
+        position: 'sidebar',
+        description: 'XP used on boosters, AI tutor, etc.',
+      },
+    },
+    {
+      name: 'xpEarnedThisWeek',
+      type: 'number',
+      label: 'XP This Week',
+      defaultValue: 0,
+      required: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Used for weekly goal tracking.',
+      },
+    },
+    {
+      name: 'lastXPUpdateAt',
+      type: 'date',
+      label: 'Last XP Update',
+      admin: {
+        position: 'sidebar',
+        description: 'Timestamp of the last XP change.',
+        date: {
+          pickerAppearance: 'dayOnly',
+        },
+      },
+    },
+    {
+      name: 'level',
+      type: 'number',
+      label: 'Current XP Level',
+      defaultValue: 1,
+      admin: {
+        position: 'sidebar',
+        description: 'Precomputed XP level (optional).',
+      },
+    },    
   ],
   endpoints: [
     {

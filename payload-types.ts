@@ -77,6 +77,11 @@ export interface User {
   linkedin_link?: string | null;
   twitter_link?: string | null;
   active?: boolean | null;
+  xp: number;
+  xpSpent: number;
+  xpEarnedThisWeek: number;
+  lastXPUpdateAt?: string | null;
+  level?: number | null;
   updatedAt: string;
   createdAt: string;
   enableAPIKey?: boolean | null;
@@ -635,6 +640,7 @@ export interface Userresponse {
   isCorrect?: boolean | null;
   isSkipped: boolean;
   skipCount: number;
+  isReattempt?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }

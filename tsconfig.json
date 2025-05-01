@@ -22,8 +22,15 @@
       "@/*": ["./src/*"],
       "@payload-config": ["./payload.config.ts"]
     },
+    "typeRoots": ["./src/types", "./node_modules/@types"],
     "target": "ES2017"
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "types/**/*"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/types/**/*"
+  ],
   "exclude": ["node_modules"]
 }

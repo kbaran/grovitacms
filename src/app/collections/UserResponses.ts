@@ -1,30 +1,86 @@
 import { isAdminOrManager } from '@/access/isAdminOrManager';
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, CollectionAfterChangeHook } from 'payload';
+import payload from 'payload';
+
+// XP calculation logic
+const calculateXP = ({
+  isCorrect,
+  isReattempt,
+  difficulty,
+  timeSpent,
+}: {
+  isCorrect: boolean;
+  isReattempt?: boolean;
+  difficulty: 'easy' | 'medium' | 'hard' | 'very-hard';
+  timeSpent?: number;
+}): number => {
+  if (!isCorrect) return 0;
+  let baseXP = { easy: 5, medium: 7, hard: 10, 'very-hard': 12 }[difficulty] || 0;
+  if (isReattempt) baseXP *= 1.5;
+  if (timeSpent && timeSpent <= 60) baseXP += 2;
+  return Math.round(baseXP);
+};
+
+// XP award logic
+const awardXP = async ({
+  userId,
+  xp,
+  req,
+}: {
+  userId: string;
+  xp: number;
+  req: any;
+}) => {
+  const result = await req.payload.find({
+    collection: 'users',
+    where: { id: { equals: userId } },
+  });
+
+  const user = result?.docs?.[0];
+  if (!user) return;
+
+  await req.payload.update({
+    collection: 'users',
+    id: user.id,
+    data: {
+      xp: Number(user.xp || 0) + xp,
+      xpEarnedThisWeek: Number(user.xpEarnedThisWeek || 0) + xp,
+      lastXPUpdateAt: new Date().toISOString(),
+    },
+  });
+};
+// XP hook
+const xpAfterChangeHook: CollectionAfterChangeHook = async ({ doc, operation, req }) => {
+  if (operation !== 'create') return;
+
+  const { userId, isCorrect, isReattempt, difficulty, timeSpent } = doc as {
+    userId: string;
+    isCorrect: boolean;
+    isReattempt?: boolean;
+    difficulty: 'easy' | 'medium' | 'hard' | 'very-hard';
+    timeSpent?: number;
+  };
+
+  if (!userId || !isCorrect) return;
+
+  const xp = calculateXP({ isCorrect, isReattempt, difficulty, timeSpent });
+  if (xp > 0) await awardXP({ userId, xp, req });
+};
 
 export const UserResponses: CollectionConfig = {
   slug: 'userresponses',
   access: {
     read: ({ req }: any) => {
-        // Always return true if using an admin API key
-        // if (req.headers.authorization === `Bearer ${process.env.PAYLOAD_API_KEY}`) {
-        //   return true;
-        // }
-  
-        console.log(req.user)
-        // For regular authenticated users
-        if (!req.user) return false;
-  
-        // Admins and account managers can read all responses
-        if (req.user.role === 'admin' || req.user.role === 'accountmanager') {
-          return true;
-        }
-  
-        // Regular users can only see their own responses
-        return { userId: { equals: req.user.id } };
-      },
-    create: ({ req }) => !!req.user, // Only authenticated users can create responses
-    update: ({ req }) => false, // Prevent users from modifying responses
-    delete: ({ req }) => req?.user?.role === 'admin', // Only admins can delete
+      console.log(req.user);
+      if (!req.user) return false;
+      if (req.user.role === 'admin' || req.user.role === 'accountmanager') {
+        return true;
+      }
+      return { userId: { equals: req.user.id } };
+    },
+    create: ({ req }) => !!req.user,
+    update: ({ req }) => false,
+    delete: ({ req }) => req?.user?.role === 'admin',
   },
   admin: {
     useAsTitle: 'questionId',
@@ -33,53 +89,53 @@ export const UserResponses: CollectionConfig = {
     beforeValidate: [
       ({ data, req }) => {
         data ??= {};
-        // No userId overriding here - good!
         return data;
       },
     ],
+    afterChange: [xpAfterChangeHook],
   },
   fields: [
     {
-      name: 'userId', // ✅ ID of the user answering the question
+      name: 'userId',
       type: 'text',
       required: true,
       label: 'User ID',
       admin: { position: 'sidebar', readOnly: true },
     },
     {
-      name: 'questionId', // ✅ Reference to `MockTestQuestions`
+      name: 'questionId',
       type: 'relationship',
       relationTo: 'mocktestquestions',
       required: true,
       label: 'Mock Test Question',
     },
     {
-      name: 'categoryId', // ✅ Reference to `ExamCategory`
+      name: 'categoryId',
       type: 'relationship',
       relationTo: 'examcategories',
       required: true,
       label: 'Exam Category',
     },
     {
-      name: 'subject', // ✅ Subject name
+      name: 'subject',
       type: 'text',
       required: true,
       label: 'Subject',
     },
     {
-      name: 'syllabus', // ✅ Subject name
+      name: 'syllabus',
       type: 'text',
       required: true,
       label: 'Syllabus',
     },
     {
-      name: 'topics', // ✅ Topics covered (comma-separated)
+      name: 'topics',
       type: 'text',
       required: false,
       label: 'Topics Covered (Comma-Separated)',
     },
     {
-      name: 'difficulty', // ✅ Difficulty level
+      name: 'difficulty',
       type: 'select',
       required: true,
       label: 'Difficulty',
@@ -91,74 +147,79 @@ export const UserResponses: CollectionConfig = {
       ],
     },
     {
-      name: 'timeSpent', // ✅ Time spent on the question (in seconds)
+      name: 'timeSpent',
       type: 'number',
       required: true,
       label: 'Time Spent (Seconds)',
       defaultValue: 0,
     },
     {
-      name: 'isCorrect', // ✅ Whether the answer was correct (0 = wrong, 1 = correct)
+      name: 'isCorrect',
       type: 'checkbox',
       required: false,
       label: 'Correct Answer',
     },
     {
-        name: 'isSkipped', // ✅ Whether the answer was correct (0 = wrong, 1 = correct)
-        type: 'checkbox',
-        required: true,
-        label: 'Skip Question',
-        defaultValue: false,
-      },    
-      {
-        name: 'skipCount', // ✅ Time spent on the question (in seconds)
-        type: 'number',
-        required: true,
-        label: 'Times Skipped',
-        defaultValue: 0,
-      },      
+      name: 'isSkipped',
+      type: 'checkbox',
+      required: true,
+      label: 'Skip Question',
+      defaultValue: false,
+    },
+    {
+      name: 'skipCount',
+      type: 'number',
+      required: true,
+      label: 'Times Skipped',
+      defaultValue: 0,
+    },
+    {
+      name: 'isReattempt',
+      type: 'checkbox',
+      label: 'Is Reattempt',
+      required: false,
+      defaultValue: false,
+      admin: {
+        description: 'Marked true if user has attempted this question before.',
+      },
+    },
   ],
   endpoints: [
-    // ADD RESPONSE ENDPOINT
     {
       path: '/:add-response',
       method: 'post',
       handler: async (req: any) => {
         try {
           const data = await req?.json();
-          
-          // Only set userId if not already provided in the request
           if (!data.userId) {
-            // Fallback to authenticated user ID only if no userId is provided
             if (req.user?.id) {
               data.userId = req.user.id;
             } else {
               return new Response(
-                JSON.stringify({ error: "User ID is required but not provided" }),
-                { 
+                JSON.stringify({ error: 'User ID is required but not provided' }),
+                {
                   status: 400,
                   headers: {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*',
                     'Access-Control-Allow-Methods': 'POST, OPTIONS',
                     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-                  }
-                }
+                  },
+                },
               );
             }
           }
 
-          // Create the response in the collection
           const response = await req.payload.create({
             collection: 'userresponses',
-            data: data,
+            data,
           });
-          
+
           return new Response(
-            JSON.stringify({ 
-              message: `Data successfully added!`, 
-              result: data, 
-              responseId: response.id 
+            JSON.stringify({
+              message: `Data successfully added!`,
+              result: data,
+              responseId: response.id,
             }),
             {
               status: 200,
@@ -167,25 +228,25 @@ export const UserResponses: CollectionConfig = {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-              }
-            }
+              },
+            },
           );
         } catch (error) {
-          console.error("Error saving response:", error);
+          console.error('Error saving response:', error);
           return new Response(
-            JSON.stringify({ error: error || "Failed to save response" }),
-            { 
+            JSON.stringify({ error: error || 'Failed to save response' }),
+            {
               status: 500,
               headers: {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-              }
-            }
+                'Access-Control-Allow-Origin': '*',
+              },
+            },
           );
         }
       },
-    }
-]
+    },
+  ],
 };
 
 export default UserResponses;

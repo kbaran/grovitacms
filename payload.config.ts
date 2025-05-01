@@ -177,6 +177,11 @@ export default buildConfig({
           password: 'test',
           role: 'admin', // Ensure the role is provided
           instituteId: '1234',
+          xp: 0,
+          xpSpent: 0,
+          xpEarnedThisWeek: 0,
+          lastXPUpdateAt: new Date().toISOString(),
+          level: 1,
         },
       })
     }

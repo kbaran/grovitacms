@@ -21,6 +21,10 @@ const calculateXP = ({
   return Math.round(baseXP);
 };
 
+const calculateLevel = (xp: number): number => {
+  return Math.max(1, Math.floor(xp / 500) + 1); // Example: Level 1 at 0–499 XP, Level 2 at 500+, etc.
+};
+
 // XP award logic
 const awardXP = async ({
   userId,
@@ -39,13 +43,18 @@ const awardXP = async ({
   const user = result?.docs?.[0];
   if (!user) return;
 
+  const updatedXP = Number(user.xp || 0) + xp;
+  const updatedWeeklyXP = Number(user.xpEarnedThisWeek || 0) + xp;
+  const newLevel = calculateLevel(updatedXP);
+
   await req.payload.update({
     collection: 'users',
     id: user.id,
     data: {
-      xp: Number(user.xp || 0) + xp,
-      xpEarnedThisWeek: Number(user.xpEarnedThisWeek || 0) + xp,
+      xp: updatedXP,
+      xpEarnedThisWeek: updatedWeeklyXP,
       lastXPUpdateAt: new Date().toISOString(),
+      level: newLevel, // ✅ update level based on new XP
     },
   });
 };

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { addDataAndFileToRequest } from '@payloadcms/next/utilities'
+import { addDataAndFileToRequest } from '@payloadcms/next/utilities';
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -150,22 +150,52 @@ export const Users: CollectionConfig = {
       path: '/:add-request',
       method: 'post',
       handler: async (req: any) => {
-        const data = await req?.json()
-        await addDataAndFileToRequest(req)
-        console.log('🚀 Brij 90 ~  file: ApprovalRequest.ts:30 ~  handler: ~  data:', data)
-        const result = await req.payload.create({ collection: 'users', data })
-        
+        const data = await req?.json();
+        await addDataAndFileToRequest(req);
+        const result = await req.payload.create({ collection: 'users', data });
+
         return Response.json(
           { message: `Data successfully added!`, result: result },
           {
             headers: {
-              'Access-Control-Allow-Origin': '*', // Adjust the origin as needed
+              'Access-Control-Allow-Origin': '*',
               'Access-Control-Allow-Methods': 'POST, OPTIONS',
               'Access-Control-Allow-Headers': 'Content-Type',
             },
           },
-        )
+        );
       },
     },
+    {
+      path: '/update-xp-status',
+      method: 'post',
+      handler: async (req: any) => {
+        try {
+          const body = await req.json();
+          const { userId } = body;
+    
+          if (!userId) {
+            return Response.json(
+              { error: 'Missing userId' },
+              { status: 400 }
+            );
+          }
+    
+          const { decayXPAndResetGoals } = await import('../utils/xp/decayXPAndResetGoals');
+          await decayXPAndResetGoals(userId, req);
+    
+          return Response.json(
+            { message: 'XP updated successfully' },
+            { status: 200 }
+          );
+        } catch (err) {
+          console.error('XP update failed:', err);
+          return Response.json(
+            { error: 'Internal Server Error' },
+            { status: 500 }
+          );
+        }
+      },
+    }
   ],
 };

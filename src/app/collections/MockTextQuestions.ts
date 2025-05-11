@@ -343,6 +343,7 @@ export const MockTestQuestions: CollectionConfig = {
       
     },
     
+    
     // New endpoint following the structure of UserResponses collection
     {
       path: "/:import-question",
@@ -503,7 +504,63 @@ export const MockTestQuestions: CollectionConfig = {
         }
       }
     },
+    {
+      path: "/bulk-questions",
+      method: "get",
+      handler: async (req: any) => {
+        try {
+          const payload = req.payload;
+          const subjectFilter = req.query.subject;
+          const syllabusFilter = req.query.syllabus ? JSON.parse(req.query.syllabus) : null;
+          const attemptedQuestions = req.query.attempted ? JSON.parse(req.query.attempted) : [];
+          const userId = req.user?.id || req.query.userId;
     
+          if (!userId) {
+            return new Response(
+              JSON.stringify({ message: "Missing user ID", result: [] }),
+              { status: 400 }
+            );
+          }
+    
+          const whereCondition: any = {
+            id: { not_in: attemptedQuestions },
+            ...(subjectFilter && { subject: { equals: subjectFilter } }),
+            ...(syllabusFilter?.length && { syllabus: { in: syllabusFilter } }),
+          };
+    
+          console.log("📦 [BULK] Fetching questions with filters:", whereCondition);
+    
+          const allQuestions = await payload.find({
+            collection: "mocktestquestions",
+            where: whereCondition,
+            limit: 1000,
+          });
+    
+          const shuffled = allQuestions.docs.sort(() => 0.5 - Math.random());
+          const selected = shuffled.slice(0, 15);
+    
+          return new Response(
+            JSON.stringify({
+              message: "Fetched 15 questions",
+              result: selected,
+            }),
+            {
+              status: 200,
+              headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+              },
+            }
+          );
+        } catch (error) {
+          console.error("❌ Error in /bulk-questions:", error);
+          return new Response(
+            JSON.stringify({ message: "Error fetching bulk questions", error }),
+            { status: 500 }
+          );
+        }
+      },
+    },
     // Batch import endpoint following the same structure
     {
       path: "/:batch-import",

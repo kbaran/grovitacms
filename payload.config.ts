@@ -177,6 +177,8 @@ export default buildConfig({
           password: 'test',
           role: 'admin', // Ensure the role is provided
           instituteId: '1234',
+          userType: 'student',        // ✅ added
+          phone_number: '9999999999',
           xp: 0,
           xpSpent: 0,
           xpEarnedThisWeek: 0,

@@ -87,6 +87,10 @@ export interface User {
   level?: number | null;
   grade?: string | null;
   school?: string | null;
+  referralCode?: string | null;
+  referredBy?: string | null;
+  referralCount?: number | null;
+  referralRewards?: number | null;
   targetExamYear?: string | null;
   parentName?: string | null;
   parentPhone?: string | null;

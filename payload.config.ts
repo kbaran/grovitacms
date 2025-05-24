@@ -29,6 +29,7 @@ import ExamSyllabus from '@/app/collections/ExamSyllabus'
 import UserLearningResume from '@/app/collections/UserLearningResume'
 import StudentRegistrations from '@/app/collections/StudentRegistration'
 import InstituteLeads from '@/app/collections/InstituteLeads'
+import { DiscountCodes } from '@/app/collections/DicountCodes'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -100,6 +101,7 @@ export default buildConfig({
     UserResponses,
     StudentRegistrations,
     InstituteLeads,
+    DiscountCodes,
     Questions,
     {
       slug: 'pages',

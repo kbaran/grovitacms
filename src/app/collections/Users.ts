@@ -99,6 +99,7 @@ export const Users: CollectionConfig = {
       label: 'User Type',
       type: 'select',
       required: true,
+      defaultValue: 'student',
       options: [
         { label: 'Student', value: 'student' },
         { label: 'Parent', value: 'parent' },

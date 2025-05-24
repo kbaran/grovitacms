@@ -9,7 +9,12 @@ export const Users: CollectionConfig = {
   access: {
     read: () => true, // ✅ Anyone can read users
     create: () => true, // ✅ Allow user creation without login (important!)
-    update: ({ req }) => !!req.user, // ✅ Allow only logged-in users to update
+    update: ({ req }) => {
+      const authHeader = req.headers?.get?.('authorization') || '';
+      const isApiKey = authHeader.startsWith('API-Key');
+      const isLoggedInUser = !!req.user;
+      return isLoggedInUser || isApiKey;
+    },
     delete: () => false, // ✅ No one can delete users
   },
   fields: [
@@ -26,7 +31,7 @@ export const Users: CollectionConfig = {
     {
       name: 'email',
       type: 'email',
-      required: true,
+      required: false,
       unique: true,
     },
     {
@@ -90,6 +95,33 @@ export const Users: CollectionConfig = {
       defaultValue: true,
     },
     {
+      name: 'userType',
+      label: 'User Type',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'Student', value: 'student' },
+        { label: 'Parent', value: 'parent' },
+        { label: 'Institute', value: 'institute' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Type of user for role-specific features and access.',
+      },
+    },    
+    {
+      name: 'is_phone_verified',
+      type: 'checkbox',
+      label: 'Phone Verified',
+      defaultValue: false,
+    },  
+    {
+      name: 'phone_number',
+      type: 'text',
+      label: 'Phone Number',
+      required: true,
+    },         
+    {
       name: 'xp',
       type: 'number',
       label: 'XP',
@@ -144,6 +176,55 @@ export const Users: CollectionConfig = {
         description: 'Precomputed XP level (optional).',
       },
     },    
+    {
+      name: 'grade',
+      type: 'text',
+      label: 'Grade/Class',
+      required: false,
+      admin: {
+        position: 'sidebar',
+        placeholder: 'e.g. 11th, 12th, etc.',
+      },
+    },
+    {
+      name: 'school',
+      type: 'text',
+      label: 'School Name',
+      required: false,
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'targetExamYear',
+      type: 'text',
+      label: 'Target Exam Year',
+      required: false,
+      admin: {
+        position: 'sidebar',
+        placeholder: 'e.g. 2026',
+      },
+    },
+    {
+      name: 'parentName',
+      type: 'text',
+      label: 'Parent Name',
+      required: false,
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'parentPhone',
+      type: 'text',
+      label: 'Parent Phone Number',
+      required: false,
+      admin: {
+        position: 'sidebar',
+        placeholder: '10-digit phone number',
+      },
+    },
+    
   ],
   endpoints: [
     {

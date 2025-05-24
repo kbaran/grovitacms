@@ -197,6 +197,25 @@ export const Users: CollectionConfig = {
       },
     },
     {
+      name: 'referralCode',
+      type: 'text',
+      unique: true
+    },
+    {
+      name: 'referredBy',
+      type: 'text'
+    },
+    {
+      name: 'referralCount',
+      type: 'number',
+      defaultValue: 0
+    },
+    {
+      name: 'referralRewards',
+      type: 'number',
+      defaultValue: 0
+    },
+    {
       name: 'targetExamYear',
       type: 'text',
       label: 'Target Exam Year',

@@ -46,7 +46,7 @@ export const ExamSyllabus: CollectionConfig = {
 
         // ✅ Set Default Exam Category ID if not provided
         if (!data.examCategory) {
-          data.examCategory = "67c43634c7d89d6e4da15d11";
+          data.examCategory = "6834529936e55b253c726463";
         }
 
         return data;
@@ -78,7 +78,7 @@ export const ExamSyllabus: CollectionConfig = {
       relationTo: 'examcategories',
       required: true,
       label: 'Exam Category',
-      defaultValue: "67c43634c7d89d6e4da15d11", // Default value set
+      defaultValue: "6834529936e55b253c726463", // Default value set
     },
     {
       name: 'subject',
@@ -191,7 +191,7 @@ export const ExamSyllabus: CollectionConfig = {
       
       // Fallback to req.params or query parameter or default
       if (!examId) {
-        examId = req.params?.examId || req.query?.examId || "67c43634c7d89d6e4da15d11";
+        examId = req.params?.examId || req.query?.examId || "6834529936e55b253c726463";
       }
       
       console.log("Extracted examId:", examId);
@@ -313,7 +313,7 @@ export const ExamSyllabus: CollectionConfig = {
       handler: async (req: any) => {
         try {
           const payload = req.payload;
-          const examId = req.query?.examId || "67c43634c7d89d6e4da15d11";
+          const examId = req.query?.examId || "6834529936e55b253c726463";
           
           console.log("Using examId from query:", examId);
           
@@ -422,7 +422,7 @@ export const ExamSyllabus: CollectionConfig = {
       handler: async (req: any) => {
         try {
           const payload = req.payload;
-          const examId = req.query?.examId || "67c43634c7d89d6e4da15d11";
+          const examId = req.query?.examId || "6834529936e55b253c726463";
           
           console.log("Fetching subject data for popup, examId:", examId);
           

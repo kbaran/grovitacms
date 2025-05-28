@@ -39,7 +39,7 @@ export const MockTestQuestions: CollectionConfig = {
 
         // ✅ Set Default Exam Category ID if not provided
         if (!data.examCategoryId) {
-          data.examCategoryId = "67c43634c7d89d6e4da15d11";
+          data.examCategoryId = "6834529936e55b253c726463";
         }
 
         return data;
@@ -108,7 +108,7 @@ export const MockTestQuestions: CollectionConfig = {
       relationTo: 'examcategories',
       required: true,
       label: 'Exam Category',
-      defaultValue: "67c43634c7d89d6e4da15d11", // ✅ Default value set
+      defaultValue: "6834529936e55b253c726463", // ✅ Default value set
     },
     {
       name: 'subject',
@@ -465,7 +465,7 @@ export const MockTestQuestions: CollectionConfig = {
             topicsCovered,
             difficulty: difficulty || "medium", // Default to medium if not provided
             instituteId,
-            examCategoryId: "67c43634c7d89d6e4da15d11", // Using default
+            examCategoryId: "6834529936e55b253c726463", // Using default
           };
           
           const createdQuestion = await req.payload.create({
@@ -685,7 +685,7 @@ export const MockTestQuestions: CollectionConfig = {
                 topicsCovered,
                 difficulty: questionData.difficulty || "medium",
                 instituteId,
-                examCategoryId: "67c43634c7d89d6e4da15d11", // Using default
+                examCategoryId: "6834529936e55b253c726463", // Using default
               };
               
               // Save to database

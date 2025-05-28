@@ -28,7 +28,9 @@ export interface Config {
     userlearningresume: Userlearningresume;
     userresponses: Userresponse;
     studentregistrations: Studentregistration;
+    upgradeplanpurchases: Upgradeplanpurchase;
     instituteleads: Institutelead;
+    discountCodes: DiscountCode;
     questions: Question;
     pages: Page;
     media: Media;
@@ -94,6 +96,7 @@ export interface User {
   targetExamYear?: string | null;
   parentName?: string | null;
   parentPhone?: string | null;
+  plan: 'free' | 'premium';
   updatedAt: string;
   createdAt: string;
   enableAPIKey?: boolean | null;
@@ -676,6 +679,27 @@ export interface Studentregistration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "upgradeplanpurchases".
+ */
+export interface Upgradeplanpurchase {
+  id: string;
+  name: string;
+  email: string;
+  dateOfPurchase: string;
+  marketPrice: number;
+  discountCode?: string | null;
+  discountPercentage?: number | null;
+  salePrice: number;
+  status: 'pending' | 'completed' | 'failed';
+  examCategory: string | Examcategory;
+  planExpiresOn?: string | null;
+  razorpayPaymentId?: string | null;
+  razorpayOrderId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "instituteleads".
  */
 export interface Institutelead {
@@ -685,6 +709,21 @@ export interface Institutelead {
   email: string;
   instituteName: string;
   city: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "discountCodes".
+ */
+export interface DiscountCode {
+  id: string;
+  code: string;
+  discountPercent: number;
+  maxUsageCount: number;
+  usedCount?: number | null;
+  isActive?: boolean | null;
+  notes?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -812,8 +851,16 @@ export interface PayloadLockedDocument {
         value: string | Studentregistration;
       } | null)
     | ({
+        relationTo: 'upgradeplanpurchases';
+        value: string | Upgradeplanpurchase;
+      } | null)
+    | ({
         relationTo: 'instituteleads';
         value: string | Institutelead;
+      } | null)
+    | ({
+        relationTo: 'discountCodes';
+        value: string | DiscountCode;
       } | null)
     | ({
         relationTo: 'questions';

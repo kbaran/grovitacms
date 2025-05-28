@@ -26,13 +26,20 @@ export const ExamCategory: CollectionConfig = {
         console.log('Before Validate - Incoming Data:', data);
         console.log('Logged-In User:', req.user);
         data ??= {};
+    
         if (req.user?.role === 'accountmanager') {
           if (!req.user.instituteId) {
             throw new Error('Account managers must have an associated institute.');
           }
           data.instituteId =
-            typeof req.user.instituteId === 'string' ? req.user.instituteId : req.user.instituteId?.id;
+            typeof req.user.instituteId === 'string'
+              ? req.user.instituteId
+              : req.user.instituteId?.id;
+        } else if (req.user?.role === 'admin') {
+          // ✅ Set default instituteId for admins
+          data.instituteId = '6787c1652069b549e2ad1146';
         }
+    
         return data;
       },
     ],

@@ -244,6 +244,21 @@ export const Users: CollectionConfig = {
         placeholder: '10-digit phone number',
       },
     },
+    {
+      name: 'plan',
+      type: 'select',
+      label: 'Subscription Plan',
+      defaultValue: 'free',
+      options: [
+        { label: 'Free', value: 'free' },
+        { label: 'Premium', value: 'premium' },
+      ],
+      required: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Tracks the user’s current subscription plan.',
+      },
+    },    
     
   ],
   endpoints: [

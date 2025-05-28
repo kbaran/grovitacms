@@ -30,6 +30,7 @@ import UserLearningResume from '@/app/collections/UserLearningResume'
 import StudentRegistrations from '@/app/collections/StudentRegistration'
 import InstituteLeads from '@/app/collections/InstituteLeads'
 import { DiscountCodes } from '@/app/collections/DicountCodes'
+import { UpgradePlanPurchases } from '@/app/collections/UpgradePlanPurchase'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -80,8 +81,8 @@ export default buildConfig({
   editor: lexicalEditor(),
   // collections: [Post, Campaign, User, Pages, Media],
   
-  csrf: ['http://localhost:3002','http://localhost:3003', 'https://onionpose.com', 'https://payload-3-0-pi.vercel.app','https://grovitacms.vercel.app','https://grovita.in','https://glp-eta.vercel.app'],
-  cors: ['http://localhost:3002','http://localhost:3003', 'https://onionpose.com', 'https://payload-3-0-pi.vercel.app','https://grovitacms.vercel.app','https://grovita.in','https://glp-eta.vercel.app'],
+  csrf: ['http://localhost:3002','http://localhost:3003', 'https://onionpose.com', 'https://payload-3-0-pi.vercel.app','https://grovitacms.vercel.app','https://grovita.in','https://glp-eta.vercel.app','http://localhost:3005'],
+  cors: ['http://localhost:3002','http://localhost:3003', 'https://onionpose.com', 'https://payload-3-0-pi.vercel.app','https://grovitacms.vercel.app','https://grovita.in','https://glp-eta.vercel.app','http://localhost:3005'],
   collections: [
     Users,
     Institute,
@@ -100,6 +101,7 @@ export default buildConfig({
     UserLearningResume,
     UserResponses,
     StudentRegistrations,
+    UpgradePlanPurchases,
     InstituteLeads,
     DiscountCodes,
     Questions,

@@ -185,6 +185,7 @@ export default buildConfig({
           phone_number: '9999999999',
           xp: 0,
           xpSpent: 0,
+          plan:'free',
           xpEarnedThisWeek: 0,
           lastXPUpdateAt: new Date().toISOString(),
           level: 1,

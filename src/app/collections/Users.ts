@@ -259,6 +259,63 @@ export const Users: CollectionConfig = {
         description: 'Tracks the user’s current subscription plan.',
       },
     },    
+    {
+      name: 'aiTutorHitsToday',
+      type: 'number',
+      label: 'AI Tutor Hits Today',
+      defaultValue: 0,
+      admin: {
+        position: 'sidebar',
+        description: 'Number of AI Tutor hits used today.',
+      },
+    },
+    {
+      name: 'examAssistHitsThisMonth',
+      type: 'number',
+      label: 'Exam Assist Hits This Month',
+      defaultValue: 0,
+      admin: {
+        position: 'sidebar',
+        description: 'Number of Exam Assistance hits used this month.',
+      },
+    },
+    {
+      name: 'mockTestsThisYear',
+      type: 'number',
+      label: 'Mock Tests Taken This Year',
+      defaultValue: 0,
+      admin: {
+        position: 'sidebar',
+        description: 'Number of mock tests taken this year.',
+      },
+    },
+    {
+      name: 'lastAiTutorResetDate',
+      type: 'date',
+      label: 'Last AI Tutor Reset Date',
+      admin: {
+        position: 'sidebar',
+        description: 'Tracks when the daily AI Tutor counter was last reset.',
+      },
+    },
+    {
+      name: 'lastExamAssistResetDate',
+      type: 'date',
+      label: 'Last Exam Assist Reset Date',
+      admin: {
+        position: 'sidebar',
+        description: 'Tracks when the monthly Exam Assist counter was last reset.',
+      },
+    },
+    {
+      name: 'lastMockTestResetDate',
+      type: 'date',
+      label: 'Last Mock Test Reset Date',
+      admin: {
+        position: 'sidebar',
+        description: 'Tracks when the yearly Mock Test counter was last reset.',
+      },
+    },
     
   ],
   endpoints: [

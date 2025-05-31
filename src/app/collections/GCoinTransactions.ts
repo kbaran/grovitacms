@@ -13,7 +13,12 @@ export const GCoinTransactions: CollectionConfig = {
       return req?.user?.role === 'admin' || req?.user?.role === 'accountmanager';
     },
     update: ({ req }) => {
-      return req?.user?.role === 'admin' || req?.user?.role === 'accountmanager';
+      const user = req.user;
+    
+      if (user && user.collection === 'users' && 'role' in user) {
+        return user.role === 'admin' || user.role === 'accountmanager';
+      }
+      return false;
     },
     delete: ({ req }) => {
       return req?.user?.role === 'admin';

@@ -7,20 +7,17 @@ export const GCoinTransactions: CollectionConfig = {
     useAPIKey: true, // ✅ Enable API key-based access
   },
   access: {
-    read: () => true, // ✅ Anyone can read transaction records
+    read: () => true, // ✅ Anyone can read
     create: ({ req }) => {
       const authHeader = req.headers?.get?.('authorization') || '';
       const isApiKey = authHeader.startsWith('API-Key');
       const isLoggedInUser = !!req.user;
-      return isLoggedInUser || isApiKey; // ✅ Allow logged-in users or API key to create
+      return isLoggedInUser || isApiKey;
     },
-    update: ({ req }) => {
-      const authHeader = req.headers?.get?.('authorization') || '';
-      const isApiKey = authHeader.startsWith('API-Key');
-      const isLoggedInUser = !!req.user;
-      return isLoggedInUser || isApiKey; // ✅ Allow logged-in users or API key to update
-    },
-    delete: () => false, // ✅ No one can delete transactions
+    update: ({ req }) =>
+      req.user && 'role' in req.user && req.user.role === 'admin', // ✅ Safe role check
+    delete: ({ req }) =>
+      req.user && 'role' in req.user && req.user.role === 'admin', // ✅ Safe role check
   },
   admin: {
     useAsTitle: 'description',

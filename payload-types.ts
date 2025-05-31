@@ -771,10 +771,10 @@ export interface Gcointransaction {
   balanceAfter: number;
   source: string;
   description?: string | null;
+  timestamp?: string | null;
   razorpayPaymentId?: string | null;
   razorpayOrderId?: string | null;
   razorpaySignature?: string | null;
-  timestamp?: string | null;
   updatedAt: string;
   createdAt: string;
   enableAPIKey?: boolean | null;

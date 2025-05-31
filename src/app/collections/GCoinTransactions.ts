@@ -1,23 +1,23 @@
 import type { CollectionConfig } from 'payload';
-import { addDataAndFileToRequest } from '@payloadcms/next/utilities';
 
 export const GCoinTransactions: CollectionConfig = {
   slug: 'gcointransactions',
-  auth: {
-    useAPIKey: true, // ✅ Enable API key-based access
-  },
   access: {
-    read: () => true, // ✅ Anyone can read
-    create: ({ req }) => {
-      const authHeader = req.headers?.get?.('authorization') || '';
-      const isApiKey = authHeader.startsWith('API-Key');
-      const isLoggedInUser = !!req.user;
-      return isLoggedInUser || isApiKey;
+    read: ({ req }: any) => {
+      if (!req.user) return false;
+      const { role, id } = req.user;
+      if (role === 'admin' || role === 'accountmanager') return true;
+      return { userId: { equals: id } };
     },
-    update: ({ req }) =>
-      req.user && 'role' in req.user && req.user.role === 'admin', // ✅ Safe role check
-    delete: ({ req }) =>
-      req.user && 'role' in req.user && req.user.role === 'admin', // ✅ Safe role check
+    create: ({ req }) => {
+      return req?.user?.role === 'admin' || req?.user?.role === 'accountmanager';
+    },
+    update: ({ req }) => {
+      return req?.user?.role === 'admin' || req?.user?.role === 'accountmanager';
+    },
+    delete: ({ req }) => {
+      return req?.user?.role === 'admin';
+    },
   },
   admin: {
     useAsTitle: 'description',
@@ -54,35 +54,35 @@ export const GCoinTransactions: CollectionConfig = {
       name: 'source',
       type: 'text',
       required: true,
-      admin: {
-        description: 'E.g., referral, mocktest, ai-tutor, manual, razorpay',
-      },
+      admin: { description: 'E.g., referral, mocktest, ai-tutor, manual' },
     },
     {
       name: 'description',
       type: 'text',
     },
     {
-      name: 'timestamp',
-      type: 'date',
-      defaultValue: () => new Date(),
-      admin: { position: 'sidebar' },
-    },
-    // ✅ Optional Razorpay payment fields (only used for purchases)
-    {
       name: 'razorpayPaymentId',
       type: 'text',
       required: false,
+      admin: { description: 'Razorpay Payment ID for purchase transactions' },
     },
     {
       name: 'razorpayOrderId',
       type: 'text',
       required: false,
+      admin: { description: 'Razorpay Order ID for purchase transactions' },
     },
     {
       name: 'razorpaySignature',
       type: 'text',
       required: false,
+      admin: { description: 'Razorpay Signature for verification' },
+    },
+    {
+      name: 'timestamp',
+      type: 'date',
+      defaultValue: () => new Date(),
+      admin: { position: 'sidebar' },
     },
   ],
   endpoints: [
@@ -91,8 +91,10 @@ export const GCoinTransactions: CollectionConfig = {
       method: 'post',
       handler: async (req: any) => {
         const data = await req?.json();
-        await addDataAndFileToRequest(req);
-        const result = await req.payload.create({ collection: 'gcointransactions', data });
+        const result = await req.payload.create({
+          collection: 'gcointransactions',
+          data,
+        });
 
         return Response.json(
           { message: `Transaction successfully added!`, result },
@@ -102,7 +104,7 @@ export const GCoinTransactions: CollectionConfig = {
               'Access-Control-Allow-Methods': 'POST, OPTIONS',
               'Access-Control-Allow-Headers': 'Content-Type',
             },
-          }
+          },
         );
       },
     },
@@ -131,9 +133,11 @@ export const GCoinTransactions: CollectionConfig = {
               'Access-Control-Allow-Methods': 'GET, OPTIONS',
               'Access-Control-Allow-Headers': 'Content-Type',
             },
-          }
+          },
         );
       },
     },
   ],
 };
+
+export default GCoinTransactions;

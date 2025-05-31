@@ -316,6 +316,24 @@ export const Users: CollectionConfig = {
         description: 'Tracks when the yearly Mock Test counter was last reset.',
       },
     },
+    {
+      name: 'gCoins',
+      type: 'number',
+      label: 'G-Coin Balance',
+      defaultValue: 0,
+      admin: {
+        position: 'sidebar',
+        description: 'Current G-Coin balance for the user',
+      },
+    },
+    {
+      name: 'gCoinsUpdatedAt',
+      type: 'date',
+      label: 'Last G-Coin Update',
+      admin: {
+        position: 'sidebar',
+      },
+    },
     
   ],
   endpoints: [
@@ -369,6 +387,70 @@ export const Users: CollectionConfig = {
           );
         }
       },
-    }
+    },
+    {
+      path: '/add-gcoins',
+      method: 'post',
+      handler: async (req: any) => {
+        try {
+          const { userId, amount, description } = await req.json();
+
+          if (!userId || !amount) {
+            return Response.json({ error: 'Missing userId or amount' }, { status: 400 });
+          }
+
+          const user = await req.payload.findByID({ collection: 'users', id: userId });
+          const newBalance = (user.gCoins || 0) + amount;
+
+          await req.payload.update({
+            collection: 'users',
+            id: userId,
+            data: { gCoins: newBalance, gCoinsUpdatedAt: new Date().toISOString() },
+          });
+
+          return Response.json(
+            { message: `Added ${amount} G-Coins`, balance: newBalance },
+            { status: 200 }
+          );
+        } catch (err) {
+          console.error('Add G-Coins failed:', err);
+          return Response.json({ error: 'Internal Server Error' }, { status: 500 });
+        }
+      },
+    },
+    {
+      path: '/deduct-gcoins',
+      method: 'post',
+      handler: async (req: any) => {
+        try {
+          const { userId, amount, description } = await req.json();
+
+          if (!userId || !amount) {
+            return Response.json({ error: 'Missing userId or amount' }, { status: 400 });
+          }
+
+          const user = await req.payload.findByID({ collection: 'users', id: userId });
+          if ((user.gCoins || 0) < amount) {
+            return Response.json({ error: 'Insufficient G-Coins' }, { status: 400 });
+          }
+
+          const newBalance = user.gCoins - amount;
+
+          await req.payload.update({
+            collection: 'users',
+            id: userId,
+            data: { gCoins: newBalance, gCoinsUpdatedAt: new Date().toISOString() },
+          });
+
+          return Response.json(
+            { message: `Deducted ${amount} G-Coins`, balance: newBalance },
+            { status: 200 }
+          );
+        } catch (err) {
+          console.error('Deduct G-Coins failed:', err);
+          return Response.json({ error: 'Internal Server Error' }, { status: 500 });
+        }
+      },
+    },
   ],
 };

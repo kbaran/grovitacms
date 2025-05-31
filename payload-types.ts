@@ -9,6 +9,7 @@
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    gcointransactions: GcointransactionAuthOperations;
   };
   collections: {
     users: User;
@@ -31,6 +32,7 @@ export interface Config {
     upgradeplanpurchases: Upgradeplanpurchase;
     instituteleads: Institutelead;
     discountCodes: DiscountCode;
+    gcointransactions: Gcointransaction;
     questions: Question;
     pages: Page;
     media: Media;
@@ -43,11 +45,33 @@ export interface Config {
   };
   globals: {};
   locale: null;
-  user: User & {
-    collection: 'users';
-  };
+  user:
+    | (User & {
+        collection: 'users';
+      })
+    | (Gcointransaction & {
+        collection: 'gcointransactions';
+      });
 }
 export interface UserAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
+export interface GcointransactionAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -97,6 +121,14 @@ export interface User {
   parentName?: string | null;
   parentPhone?: string | null;
   plan: 'free' | 'premium';
+  aiTutorHitsToday?: number | null;
+  examAssistHitsThisMonth?: number | null;
+  mockTestsThisYear?: number | null;
+  lastAiTutorResetDate?: string | null;
+  lastExamAssistResetDate?: string | null;
+  lastMockTestResetDate?: string | null;
+  gCoins?: number | null;
+  gCoinsUpdatedAt?: string | null;
   updatedAt: string;
   createdAt: string;
   enableAPIKey?: boolean | null;
@@ -729,6 +761,36 @@ export interface DiscountCode {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gcointransactions".
+ */
+export interface Gcointransaction {
+  id: string;
+  userId: string | User;
+  type: 'earn' | 'spend' | 'purchase';
+  amount: number;
+  balanceAfter: number;
+  source: string;
+  description?: string | null;
+  razorpayPaymentId?: string | null;
+  razorpayOrderId?: string | null;
+  razorpaySignature?: string | null;
+  timestamp?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  enableAPIKey?: boolean | null;
+  apiKey?: string | null;
+  apiKeyIndex?: string | null;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "questions".
  */
 export interface Question {
@@ -863,6 +925,10 @@ export interface PayloadLockedDocument {
         value: string | DiscountCode;
       } | null)
     | ({
+        relationTo: 'gcointransactions';
+        value: string | Gcointransaction;
+      } | null)
+    | ({
         relationTo: 'questions';
         value: string | Question;
       } | null)
@@ -876,10 +942,15 @@ export interface PayloadLockedDocument {
       } | null);
   globalSlug?: string | null;
   _lastEdited: {
-    user: {
-      relationTo: 'users';
-      value: string | User;
-    };
+    user:
+      | {
+          relationTo: 'users';
+          value: string | User;
+        }
+      | {
+          relationTo: 'gcointransactions';
+          value: string | Gcointransaction;
+        };
     editedAt?: string | null;
   };
   isLocked?: boolean | null;
@@ -892,10 +963,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: string;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'gcointransactions';
+        value: string | Gcointransaction;
+      };
   key?: string | null;
   value?:
     | {

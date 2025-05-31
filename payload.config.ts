@@ -31,6 +31,7 @@ import StudentRegistrations from '@/app/collections/StudentRegistration'
 import InstituteLeads from '@/app/collections/InstituteLeads'
 import { DiscountCodes } from '@/app/collections/DicountCodes'
 import { UpgradePlanPurchases } from '@/app/collections/UpgradePlanPurchase'
+import { GCoinTransactions } from '@/app/collections/GCoinTransactions'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -104,6 +105,7 @@ export default buildConfig({
     UpgradePlanPurchases,
     InstituteLeads,
     DiscountCodes,
+    GCoinTransactions,
     Questions,
     {
       slug: 'pages',

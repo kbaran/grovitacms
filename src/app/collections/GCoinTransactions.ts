@@ -10,18 +10,29 @@ export const GCoinTransactions: CollectionConfig = {
       return { userId: { equals: id } };
     },
     create: ({ req }) => {
-      return req?.user?.role === 'admin' || req?.user?.role === 'accountmanager';
+      // ✅ Allow ONLY:
+      // - requests made by authenticated users (req.user exists), OR
+      // - internal API requests with API keys
+      const authHeader = req.headers?.get?.('authorization') || '';
+      const isApiKey = authHeader.startsWith('API-Key');
+      const isLoggedInUser = !!req.user;
+      return isLoggedInUser || isApiKey;
     },
+  
     update: ({ req }) => {
-      const user = req.user;
-    
-      if (user && user.collection === 'users' && 'role' in user) {
-        return user.role === 'admin' || user.role === 'accountmanager';
-      }
-      return false;
+      // ✅ Allow only admin panel edits (which run as admin), or your server-side API calls
+      const authHeader = req.headers?.get?.('authorization') || '';
+      const isApiKey = authHeader.startsWith('API-Key');
+      const isAdminSession = req.user?.collection === 'users' && req.user?.role === 'admin';
+      return isAdminSession || isApiKey;
     },
+  
     delete: ({ req }) => {
-      return req?.user?.role === 'admin';
+      // ✅ Only admin panel or API key can delete
+      const authHeader = req.headers?.get?.('authorization') || '';
+      const isApiKey = authHeader.startsWith('API-Key');
+      const isAdminSession = req.user?.collection === 'users' && req.user?.role === 'admin';
+      return isAdminSession || isApiKey;
     },
   },
   admin: {

@@ -1,23 +1,26 @@
 import type { CollectionConfig } from 'payload';
 import { addDataAndFileToRequest } from '@payloadcms/next/utilities';
 
-const isAdmin = (req) => req.user && 'role' in req.user && req.user.role === 'admin';
-
 export const GCoinTransactions: CollectionConfig = {
   slug: 'gcointransactions',
   auth: {
-    useAPIKey: true, // ✅ Allow API key-based access
+    useAPIKey: true, // ✅ Enable API key-based access
   },
   access: {
-    read: ({ req }) => {
+    read: () => true, // ✅ Anyone can read transaction records
+    create: ({ req }) => {
       const authHeader = req.headers?.get?.('authorization') || '';
       const isApiKey = authHeader.startsWith('API-Key');
       const isLoggedInUser = !!req.user;
-      return isLoggedInUser || isApiKey;
+      return isLoggedInUser || isApiKey; // ✅ Allow logged-in users or API key to create
     },
-    create: ({ req }) => isAdmin(req), // Only admin can create manually
-    update: ({ req }) => isAdmin(req), // Only admin can update manually
-    delete: ({ req }) => isAdmin(req), // Only admin can delete
+    update: ({ req }) => {
+      const authHeader = req.headers?.get?.('authorization') || '';
+      const isApiKey = authHeader.startsWith('API-Key');
+      const isLoggedInUser = !!req.user;
+      return isLoggedInUser || isApiKey; // ✅ Allow logged-in users or API key to update
+    },
+    delete: () => false, // ✅ No one can delete transactions
   },
   admin: {
     useAsTitle: 'description',
@@ -68,7 +71,7 @@ export const GCoinTransactions: CollectionConfig = {
       defaultValue: () => new Date(),
       admin: { position: 'sidebar' },
     },
-    // Optional Razorpay payment fields (only filled for purchases)
+    // ✅ Optional Razorpay payment fields (only used for purchases)
     {
       name: 'razorpayPaymentId',
       type: 'text',

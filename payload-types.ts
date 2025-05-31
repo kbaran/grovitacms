@@ -9,7 +9,6 @@
 export interface Config {
   auth: {
     users: UserAuthOperations;
-    gcointransactions: GcointransactionAuthOperations;
   };
   collections: {
     users: User;
@@ -45,33 +44,11 @@ export interface Config {
   };
   globals: {};
   locale: null;
-  user:
-    | (User & {
-        collection: 'users';
-      })
-    | (Gcointransaction & {
-        collection: 'gcointransactions';
-      });
+  user: User & {
+    collection: 'users';
+  };
 }
 export interface UserAuthOperations {
-  forgotPassword: {
-    email: string;
-    password: string;
-  };
-  login: {
-    email: string;
-    password: string;
-  };
-  registerFirstUser: {
-    email: string;
-    password: string;
-  };
-  unlock: {
-    email: string;
-    password: string;
-  };
-}
-export interface GcointransactionAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -771,23 +748,12 @@ export interface Gcointransaction {
   balanceAfter: number;
   source: string;
   description?: string | null;
-  timestamp?: string | null;
   razorpayPaymentId?: string | null;
   razorpayOrderId?: string | null;
   razorpaySignature?: string | null;
+  timestamp?: string | null;
   updatedAt: string;
   createdAt: string;
-  enableAPIKey?: boolean | null;
-  apiKey?: string | null;
-  apiKeyIndex?: string | null;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -942,15 +908,10 @@ export interface PayloadLockedDocument {
       } | null);
   globalSlug?: string | null;
   _lastEdited: {
-    user:
-      | {
-          relationTo: 'users';
-          value: string | User;
-        }
-      | {
-          relationTo: 'gcointransactions';
-          value: string | Gcointransaction;
-        };
+    user: {
+      relationTo: 'users';
+      value: string | User;
+    };
     editedAt?: string | null;
   };
   isLocked?: boolean | null;
@@ -963,15 +924,10 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: string;
-  user:
-    | {
-        relationTo: 'users';
-        value: string | User;
-      }
-    | {
-        relationTo: 'gcointransactions';
-        value: string | Gcointransaction;
-      };
+  user: {
+    relationTo: 'users';
+    value: string | User;
+  };
   key?: string | null;
   value?:
     | {

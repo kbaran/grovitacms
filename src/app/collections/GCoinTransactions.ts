@@ -1,10 +1,12 @@
 import type { CollectionConfig } from 'payload';
 import { addDataAndFileToRequest } from '@payloadcms/next/utilities';
 
+const isAdmin = (req) => req.user && 'role' in req.user && req.user.role === 'admin';
+
 export const GCoinTransactions: CollectionConfig = {
   slug: 'gcointransactions',
   auth: {
-    useAPIKey: true,
+    useAPIKey: true, // ✅ Allow API key-based access
   },
   access: {
     read: ({ req }) => {
@@ -13,9 +15,9 @@ export const GCoinTransactions: CollectionConfig = {
       const isLoggedInUser = !!req.user;
       return isLoggedInUser || isApiKey;
     },
-    create: ({ req }) => req?.user?.role === 'admin',
-    update: ({ req }) => req?.user?.role === 'admin',
-    delete: () => false,
+    create: ({ req }) => isAdmin(req), // Only admin can create manually
+    update: ({ req }) => isAdmin(req), // Only admin can update manually
+    delete: ({ req }) => isAdmin(req), // Only admin can delete
   },
   admin: {
     useAsTitle: 'description',
@@ -34,7 +36,7 @@ export const GCoinTransactions: CollectionConfig = {
       options: [
         { label: 'Earn', value: 'earn' },
         { label: 'Spend', value: 'spend' },
-        { label: 'Purchase', value: 'purchase' }, // ✅ NEW type for purchased coins
+        { label: 'Purchase', value: 'purchase' },
       ],
       required: true,
     },
@@ -61,34 +63,26 @@ export const GCoinTransactions: CollectionConfig = {
       type: 'text',
     },
     {
+      name: 'timestamp',
+      type: 'date',
+      defaultValue: () => new Date(),
+      admin: { position: 'sidebar' },
+    },
+    // Optional Razorpay payment fields (only filled for purchases)
+    {
       name: 'razorpayPaymentId',
       type: 'text',
       required: false,
-      admin: {
-        description: 'Razorpay payment_id (only for purchases)',
-      },
     },
     {
       name: 'razorpayOrderId',
       type: 'text',
       required: false,
-      admin: {
-        description: 'Razorpay order_id (only for purchases)',
-      },
     },
     {
       name: 'razorpaySignature',
       type: 'text',
       required: false,
-      admin: {
-        description: 'Razorpay signature (only for purchases)',
-      },
-    },
-    {
-      name: 'timestamp',
-      type: 'date',
-      defaultValue: () => new Date(),
-      admin: { position: 'sidebar' },
     },
   ],
   endpoints: [
@@ -108,7 +102,7 @@ export const GCoinTransactions: CollectionConfig = {
               'Access-Control-Allow-Methods': 'POST, OPTIONS',
               'Access-Control-Allow-Headers': 'Content-Type',
             },
-          },
+          }
         );
       },
     },
@@ -137,7 +131,7 @@ export const GCoinTransactions: CollectionConfig = {
               'Access-Control-Allow-Methods': 'GET, OPTIONS',
               'Access-Control-Allow-Headers': 'Content-Type',
             },
-          },
+          }
         );
       },
     },

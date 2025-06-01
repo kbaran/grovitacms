@@ -742,14 +742,16 @@ export interface DiscountCode {
  */
 export interface Gcointransaction {
   id: string;
-  userId: string | User;
-  type: 'earn' | 'spend' | 'purchase';
+  userId: string;
   amount: number;
-  balanceAfter: number;
+  type: 'earn' | 'spend' | 'purchase';
+  balanceAfter?: number | null;
   source: string;
   description?: string | null;
-  razorpayPaymentId?: string | null;
+  currency: 'INR' | 'USD';
+  paymentStatus: 'pending' | 'success' | 'failed';
   razorpayOrderId?: string | null;
+  razorpayPaymentId?: string | null;
   razorpaySignature?: string | null;
   timestamp?: string | null;
   updatedAt: string;

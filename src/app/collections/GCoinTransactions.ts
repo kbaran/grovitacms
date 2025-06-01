@@ -2,39 +2,32 @@ import type { CollectionConfig } from 'payload';
 
 export const GCoinTransactions: CollectionConfig = {
   slug: 'gcointransactions',
+
   access: {
     read: ({ req }: any) => {
-      if (!req.user) return false;
+      if (!req.user) return true;
       const { role, id } = req.user;
       if (role === 'admin' || role === 'accountmanager') return true;
       return { userId: { equals: id } };
     },
     create: ({ req }) => {
-      return req?.user?.role === 'admin' || req?.user?.role === 'accountmanager';
+      const authHeader = req.headers?.get?.('authorization') || '';
+      const isApiKey = authHeader.startsWith('API-Key');
+      return req?.user?.role === 'admin' || req?.user?.role === 'accountmanager' || isApiKey;
     },
     update: ({ req }) => {
-      const user = req.user;
-    
-      if (user && user.collection === 'users' && 'role' in user) {
-        return user.role === 'admin' || user.role === 'accountmanager';
-      }
-      return false;
+      const authHeader = req.headers?.get?.('authorization') || '';
+      const isApiKey = authHeader.startsWith('API-Key');
+      return req?.user?.role === 'admin' || req?.user?.role === 'accountmanager' || isApiKey;
     },
-    delete: ({ req }) => {
-      return req?.user?.role === 'admin';
-    },
+    delete: ({ req }) => req?.user?.role === 'admin',
   },
-  admin: {
-    useAsTitle: 'description',
-  },
+
+  admin: { useAsTitle: 'id' },
+
   fields: [
-    {
-      name: 'userId',
-      type: 'relationship',
-      relationTo: 'users',
-      required: true,
-      admin: { position: 'sidebar' },
-    },
+    { name: 'userId', type: 'text', required: true },
+    { name: 'amount', type: 'number', required: true },
     {
       name: 'type',
       type: 'select',
@@ -45,101 +38,125 @@ export const GCoinTransactions: CollectionConfig = {
       ],
       required: true,
     },
+    { name: 'balanceAfter', type: 'number' }, // will be set later on success
+    { name: 'source', type: 'text', required: true },
+    { name: 'description', type: 'text' },
     {
-      name: 'amount',
-      type: 'number',
+      name: 'currency',
+      type: 'select',
+      options: [
+        { label: 'INR', value: 'INR' },
+        { label: 'USD', value: 'USD' },
+      ],
+      defaultValue: 'INR',
       required: true,
     },
     {
-      name: 'balanceAfter',
-      type: 'number',
+      name: 'paymentStatus',
+      type: 'select',
+      options: [
+        { label: 'Pending', value: 'pending' },
+        { label: 'Success', value: 'success' },
+        { label: 'Failed', value: 'failed' },
+      ],
+      defaultValue: 'pending',
       required: true,
     },
-    {
-      name: 'source',
-      type: 'text',
-      required: true,
-      admin: { description: 'E.g., referral, mocktest, ai-tutor, manual' },
-    },
-    {
-      name: 'description',
-      type: 'text',
-    },
-    {
-      name: 'razorpayPaymentId',
-      type: 'text',
-      required: false,
-      admin: { description: 'Razorpay Payment ID for purchase transactions' },
-    },
-    {
-      name: 'razorpayOrderId',
-      type: 'text',
-      required: false,
-      admin: { description: 'Razorpay Order ID for purchase transactions' },
-    },
-    {
-      name: 'razorpaySignature',
-      type: 'text',
-      required: false,
-      admin: { description: 'Razorpay Signature for verification' },
-    },
+    { name: 'razorpayOrderId', type: 'text' },
+    { name: 'razorpayPaymentId', type: 'text' },
+    { name: 'razorpaySignature', type: 'text' },
     {
       name: 'timestamp',
       type: 'date',
-      defaultValue: () => new Date(),
       admin: { position: 'sidebar' },
+      defaultValue: () => new Date(),
     },
   ],
+
   endpoints: [
     {
-      path: '/:add-transaction',
+      path: '/add-transaction',
       method: 'post',
       handler: async (req: any) => {
-        const data = await req?.json();
-        const result = await req.payload.create({
-          collection: 'gcointransactions',
-          data,
-        });
+        try {
+          const body = await req.json();
 
-        return Response.json(
-          { message: `Transaction successfully added!`, result },
-          {
-            headers: {
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'POST, OPTIONS',
-              'Access-Control-Allow-Headers': 'Content-Type',
+          const {
+            userId,
+            amount,
+            type,
+            source,
+            description,
+            razorpayOrderId,
+            razorpayPaymentId,
+            razorpaySignature,
+            currency = 'INR',
+            paymentStatus = 'pending',
+          } = body;
+
+          console.log('✅ Incoming /add-transaction payload:', body);
+
+          if (!userId || typeof amount !== 'number' || !type || !source) {
+            console.error('❌ Missing required fields:', body);
+            return Response.json({ error: 'Missing required fields' }, { status: 400 });
+          }
+
+          const userRecord = await req.payload.findByID({
+            collection: 'users',
+            id: userId,
+          });
+
+          if (!userRecord) {
+            console.error('❌ User not found:', userId);
+            return Response.json({ error: 'User not found' }, { status: 404 });
+          }
+
+          console.log('🔍 User record found:', {
+            id: userRecord.id,
+            email: userRecord.email,
+            gCoins: userRecord.gCoins,
+          });
+
+          // ✅ Only record the transaction now; no balance updates here
+          const transactionData = {
+            userId,
+            amount,
+            type,
+            source,
+            description,
+            razorpayOrderId,
+            razorpayPaymentId,
+            razorpaySignature,
+            currency,
+            paymentStatus,
+            timestamp: new Date(),
+          };
+
+          console.log('🟡 About to create transaction with:', transactionData);
+
+          const transaction = await req.payload.create({
+            collection: 'gcointransactions',
+            data: transactionData,
+          });
+
+          console.log('✅ Transaction saved, ID:', transaction.id);
+
+          return Response.json(
+            {
+              message: 'Transaction successfully added',
+              result: { id: transaction.id },
             },
-          },
-        );
-      },
-    },
-    {
-      path: '/user-history/:userId',
-      method: 'get',
-      handler: async (req: any) => {
-        const userId = req.params.userId;
-
-        if (!userId) {
-          return Response.json({ error: 'Missing userId' }, { status: 400 });
+            { status: 200 }
+          );
+        } catch (error: unknown) {
+          console.error('❌ Error in /add-transaction:', error);
+          const errorMessage =
+            error instanceof Error ? error.message : JSON.stringify(error);
+          return Response.json(
+            { error: 'Internal server error', details: errorMessage },
+            { status: 500 }
+          );
         }
-
-        const transactions = await req.payload.find({
-          collection: 'gcointransactions',
-          where: { userId: { equals: userId } },
-          sort: '-timestamp',
-          limit: 50,
-        });
-
-        return Response.json(
-          { message: `Fetched transaction history`, result: transactions.docs },
-          {
-            headers: {
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'GET, OPTIONS',
-              'Access-Control-Allow-Headers': 'Content-Type',
-            },
-          },
-        );
       },
     },
   ],

@@ -123,6 +123,13 @@ export const MockTestQuestions: CollectionConfig = {
       label: 'Syllabus',
     },    
     {
+      name: 'isReported',
+      type: 'checkbox',
+      label: 'Is Reported?',
+      defaultValue: false,
+      admin: { position: 'sidebar' }
+    },
+    {
       name: 'topicsCovered',
       type: 'array',
       label: 'Topics Covered',

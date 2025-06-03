@@ -601,6 +601,7 @@ export interface Mocktestquestion {
   examCategoryId: string | Examcategory;
   subject: string;
   syllabus: string;
+  isReported?: boolean | null;
   topicsCovered?:
     | {
         topic?: string | null;

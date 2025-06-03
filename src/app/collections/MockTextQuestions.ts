@@ -18,7 +18,15 @@ export const MockTestQuestions: CollectionConfig = {
       return false;
     },
     create: ({ req }) => req?.user?.role === 'admin' || req?.user?.role === 'accountmanager',
-    update: ({ req }) => req?.user?.role === 'admin' || req?.user?.role === 'accountmanager',
+    
+    // ✅ UPDATED update access rule
+    update: ({ req }) => {
+      const authHeader = req.headers?.get?.('authorization') || '';
+      const isApiKey = authHeader.startsWith('API-Key');
+      const isLoggedInUser = !!req.user;
+      return isLoggedInUser || isApiKey;
+    },
+  
     delete: () => false,
   },
   admin: {
@@ -123,12 +131,12 @@ export const MockTestQuestions: CollectionConfig = {
       label: 'Syllabus',
     },    
     {
-      name: 'isReported',
-      type: 'checkbox',
-      label: 'Is Reported?',
-      defaultValue: false,
-      admin: { position: 'sidebar' }
-    },
+  name: 'isReported',
+  type: 'checkbox',
+  label: 'Is Reported?',
+  defaultValue: false,
+  admin: { position: 'sidebar' }
+},
     {
       name: 'topicsCovered',
       type: 'array',
@@ -511,6 +519,7 @@ export const MockTestQuestions: CollectionConfig = {
         }
       }
     },
+    
     {
       path: "/bulk-questions",
       method: "get",

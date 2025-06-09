@@ -97,113 +97,148 @@ export const MockTestQuestionSets: CollectionConfig = {
         try {
           const body = await req?.json();
           const { mocktestId } = body;
-    
+  
+          console.log("🟡 mocktestId received:", mocktestId);
+  
           if (!mocktestId) {
             return Response.json({ error: 'mocktestId is required' }, { status: 400 });
           }
-    
+  
           const mocktest = await req.payload.findByID({
             collection: 'mocktests',
             id: mocktestId,
           });
-    
+  
           if (!mocktest) {
             return Response.json({ error: 'Mocktest not found' }, { status: 404 });
           }
-    
+  
+          console.log("✅ Mocktest found:", mocktest.title);
+  
           const { instituteId, questionGenerationRules } = mocktest;
-          const chapterFilters = questionGenerationRules?.chapterFilters || [];
-          const topicFilters = questionGenerationRules?.topicFilters || [];
+          const chapterFilters = questionGenerationRules?.syllabusFilters || [];
           const difficultyMap = questionGenerationRules?.difficultyDistribution || {};
-    
-          // 1. Resolve chapterFilters into topic names
-          let topicsFromChapters: string[] = [];
-    
-          if (chapterFilters.length > 0) {
-            const chapterIds = chapterFilters.map((c: any) => c.chapter);
-            const chapters = await req.payload.find({
+          const topicFilters = questionGenerationRules?.topicFilters || [];
+  
+          console.log("🧩 chapterFilters:", chapterFilters);
+          console.log("🧩 topicFilters:", topicFilters);
+          console.log("🧩 difficultyMap:", difficultyMap);
+  
+          // 1. Resolve chapter topics
+          const chapterIds = chapterFilters
+            .map((c: any) => (typeof c.chapter === 'object' ? c.chapter.id : c.chapter))
+            .filter((id: any) => typeof id === 'string' && id.length === 24);
+  
+          console.log("🔍 Resolved chapterIds:", chapterIds);
+  
+          let chapters: any = { docs: [] };
+          if (chapterIds.length > 0) {
+            chapters = await req.payload.find({
               collection: 'examsyllabus',
               where: { id: { in: chapterIds } },
               limit: 100,
             });
-    
-            topicsFromChapters = chapters.docs
-              .map((c: any) => c.topics || [])
-              .flat()
-              .filter(Boolean);
           }
-    
-          // 2. Get topics from topicFilters
-          const explicitTopicIds = topicFilters.map((t: any) => t.topic).filter(Boolean);
-    
-          // 3. Merge all topic IDs
+  
+          console.log("📘 Fetched chapters:", chapters.docs.length);
+  
+          const topicsFromChapters = chapters.docs
+            .flatMap((c: any) =>
+              Array.isArray(c.topicsCovered)
+                ? c.topicsCovered.map((t: any) =>
+                    typeof t === 'object' ? t.id || t.value : t
+                  )
+                : []
+            )
+            .filter(Boolean);
+  
+          console.log("📚 Extracted topics from chapters:", topicsFromChapters);
+  
+          // 2. Add explicit topic filters
+          const explicitTopicIds = topicFilters
+            .map((t: any) => (typeof t.topic === 'object' ? t.topic.id : t.topic))
+            .filter(Boolean);
+  
+          console.log("📚 Extracted topics from topicFilters:", explicitTopicIds);
+  
           const allTopicIds = Array.from(new Set([...topicsFromChapters, ...explicitTopicIds]));
-    
+  
+          console.log("✅ Merged topic IDs for filtering:", allTopicIds);
+  
           if (allTopicIds.length === 0) {
-            return Response.json({ error: 'No topics selected via chapter or topic filters' }, { status: 400 });
+            return Response.json({ error: 'No topics found from selected filters' }, { status: 400 });
           }
-    
-          // 4. Normalize selected difficulties
+  
+          // 3. Resolve difficulty levels
           const selectedDifficulties = Object.entries(difficultyMap)
             .filter(([_, count]) => typeof count === 'number' && count > 0)
-            .map(([level]) => {
-              if (level === 'easy') return 'Easy';
-              if (level === 'medium') return 'Medium';
-              if (level === 'hard') return 'Hard';
-              if (level === 'very-hard') return 'Very-Hard';
-              return level;
-            });
-    
-          // 5. Fetch matching questions
-          const allQuestions = await req.payload.find({
+            .map(([level]) => level.toLowerCase());
+  
+          console.log("🎯 Selected difficulties:", selectedDifficulties);
+  
+          // 4. Get raw questions
+          const allRawQuestions = await req.payload.find({
             collection: 'mocktestquestions',
             limit: 1000,
             where: {
-              topic: { in: allTopicIds },
               difficulty: { in: selectedDifficulties },
             },
           });
-    
-          // 6. Distribute questions by difficulty
+  
+          console.log("🔍 Raw questions fetched:", allRawQuestions.docs.length);
+  
+          // 5. Manual filter using topicsCovered
+          const filteredQuestions = allRawQuestions.docs.filter((q: any) => {
+            const qTopics = Array.isArray(q.topicsCovered) ? q.topicsCovered : [];
+            return qTopics.some((t: any) =>
+              allTopicIds.includes(typeof t === 'object' ? t.id || t.value : t)
+            );
+          });
+  
+          console.log("✅ Filtered by topicsCovered:", filteredQuestions.length);
+  
+          // 6. Slice questions per difficulty
           const selectedQuestions: any[] = [];
-    
+  
           for (const [key, count] of Object.entries(difficultyMap)) {
             if ((count as number) > 0) {
-              const label =
-                key === 'easy' ? 'Easy' :
-                key === 'medium' ? 'Medium' :
-                key === 'hard' ? 'Hard' :
-                key === 'very-hard' ? 'Very-Hard' :
-                key;
-    
-              const questionsForLevel = allQuestions.docs
-                .filter((q: any) => q.difficulty === label)
+              const questionsForLevel = filteredQuestions
+                .filter((q: any) => q.difficulty?.toLowerCase() === key.toLowerCase())
                 .slice(0, count as number);
-    
+  
+              console.log(`🎯 Selected ${questionsForLevel.length} questions for ${key}`);
               selectedQuestions.push(...questionsForLevel);
             }
           }
-    
+  
           const questionsArray = selectedQuestions.map((q: any, index: number) => ({
             questionId: q.id,
             order: index + 1,
             marks: 4,
             negativeMarks: -1,
           }));
-    
-          // 7. Create the question set
+  
+          console.log("🧮 Total questions to add:", questionsArray.length);
+          console.log("📋 Sample question object:", questionsArray[0]);
+  
+          if (questionsArray.length === 0) {
+            return Response.json({ error: 'No matching questions found' }, { status: 400 });
+          }
+  
           const createdSet = await req.payload.create({
             collection: 'mocktestquestionsets',
             data: {
               mocktestId,
-              instituteId,
+              instituteId: typeof instituteId === 'object' ? instituteId.id : instituteId,
               questions: questionsArray,
             },
           });
-    
+  
+          console.log("✅ Created questionSet with ID:", createdSet.id);
+  
           return Response.json({ success: true, questionSetId: createdSet.id }, { status: 200 });
         } catch (err) {
-          console.error('Error generating mocktest question set:', err);
+          console.error('❌ Error generating mocktest question set:', err);
           return Response.json({ error: 'Server Error' }, { status: 500 });
         }
       },

@@ -32,6 +32,8 @@ export interface Config {
     instituteleads: Institutelead;
     discountCodes: DiscountCode;
     gcointransactions: Gcointransaction;
+    mocktests: Mocktest;
+    mocktestquestionsets: Mocktestquestionset;
     questions: Question;
     pages: Page;
     media: Media;
@@ -760,6 +762,84 @@ export interface Gcointransaction {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mocktests".
+ */
+export interface Mocktest {
+  id: string;
+  title: string;
+  shortDescription?: string | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  subject: ('Physics' | 'Mathematics' | 'Inorganic Chemistry' | 'Organic Chemistry' | 'Physical Chemistry')[];
+  examCategory: string | Examcategory;
+  instituteId: string | Institute;
+  questionGenerationRules?: {
+    syllabusFilters?:
+      | {
+          chapter: string | Examsyllabus;
+          id?: string | null;
+        }[]
+      | null;
+    difficultyDistribution?: {
+      easy?: number | null;
+      medium?: number | null;
+      hard?: number | null;
+      'very-hard'?: number | null;
+    };
+    totalQuestions?: number | null;
+  };
+  startDate: string;
+  endDate: string;
+  showResultsAfterEndDate?: boolean | null;
+  duration?: number | null;
+  negativeMarking?: boolean | null;
+  marksPerCorrect?: number | null;
+  marksPerIncorrect?: number | null;
+  allowCalculator?: boolean | null;
+  tags?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  status?: ('draft' | 'published' | 'archived') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mocktestquestionsets".
+ */
+export interface Mocktestquestionset {
+  id: string;
+  mocktestId: string | Mocktest;
+  instituteId: string | Institute;
+  questions: {
+    questionId: string | Mocktestquestion;
+    order: number;
+    marks?: number | null;
+    negativeMarks?: number | null;
+    id?: string | null;
+  }[];
+  questionCount?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "questions".
  */
 export interface Question {
@@ -896,6 +976,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'gcointransactions';
         value: string | Gcointransaction;
+      } | null)
+    | ({
+        relationTo: 'mocktests';
+        value: string | Mocktest;
+      } | null)
+    | ({
+        relationTo: 'mocktestquestionsets';
+        value: string | Mocktestquestionset;
       } | null)
     | ({
         relationTo: 'questions';

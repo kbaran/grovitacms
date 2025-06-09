@@ -32,6 +32,8 @@ import InstituteLeads from '@/app/collections/InstituteLeads'
 import { DiscountCodes } from '@/app/collections/DicountCodes'
 import { UpgradePlanPurchases } from '@/app/collections/UpgradePlanPurchase'
 import { GCoinTransactions } from '@/app/collections/GCoinTransactions'
+import { MockTests } from '@/app/collections/MockTests'
+import { MockTestQuestionSets } from '@/app/collections/MockTestQuestionSets'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -106,6 +108,8 @@ export default buildConfig({
     InstituteLeads,
     DiscountCodes,
     GCoinTransactions,
+    MockTests,
+    MockTestQuestionSets,
     Questions,
     {
       slug: 'pages',

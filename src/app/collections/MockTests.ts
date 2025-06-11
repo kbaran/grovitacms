@@ -39,6 +39,20 @@ export const MockTests: CollectionConfig = {
       },
     },
     {
+      name: 'isPaid',
+      type: 'checkbox',
+      defaultValue: false,
+      required: true,
+    },
+    {
+      name: 'price',
+      type: 'number',
+      required: false,
+      admin: {
+        description: 'If paid, specify G-Coins cost',
+      },
+    },
+    {
       name: 'subject',
       type: 'select',
       hasMany: true,

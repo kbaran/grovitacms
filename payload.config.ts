@@ -34,6 +34,9 @@ import { UpgradePlanPurchases } from '@/app/collections/UpgradePlanPurchase'
 import { GCoinTransactions } from '@/app/collections/GCoinTransactions'
 import { MockTests } from '@/app/collections/MockTests'
 import { MockTestQuestionSets } from '@/app/collections/MockTestQuestionSets'
+import MockTestEnrollments from '@/app/collections/MockTestEnrollments'
+import MockTestAttempts from '@/app/collections/MockTestAttempts'
+import { MockTestSubmissions } from '@/app/collections/MockTestSubmissions'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -98,7 +101,10 @@ export default buildConfig({
     Purchases,
     MockTestPricePlans,
     ExamSyllabus,
+    MockTestEnrollments,
+    MockTestAttempts,
     MockTestPurchases,
+    MockTestSubmissions,
     ExamCategory,
     MockTestQuestions,
     UserLearningResume,

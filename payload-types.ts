@@ -9,6 +9,8 @@
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    mocktestsubmissions: MocktestsubmissionAuthOperations;
+    mocktestquestionsets: MocktestquestionsetAuthOperations;
   };
   collections: {
     users: User;
@@ -19,6 +21,7 @@ export interface Config {
     widget1: Widget1;
     consultation: Consultation;
     priceplans: Priceplan;
+    mocktests: Mocktest;
     purchases: Purchase;
     mocktestpriceplans: Mocktestpriceplan;
     examsyllabus: Examsyllabus;
@@ -35,7 +38,6 @@ export interface Config {
     instituteleads: Institutelead;
     discountCodes: DiscountCode;
     gcointransactions: Gcointransaction;
-    mocktests: Mocktest;
     mocktestquestionsets: Mocktestquestionset;
     questions: Question;
     pages: Page;
@@ -49,11 +51,54 @@ export interface Config {
   };
   globals: {};
   locale: null;
-  user: User & {
-    collection: 'users';
-  };
+  user:
+    | (User & {
+        collection: 'users';
+      })
+    | (Mocktestsubmission & {
+        collection: 'mocktestsubmissions';
+      })
+    | (Mocktestquestionset & {
+        collection: 'mocktestquestionsets';
+      });
 }
 export interface UserAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
+export interface MocktestsubmissionAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
+export interface MocktestquestionsetAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -434,57 +479,62 @@ export interface Priceplan {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "purchases".
+ * via the `definition` "mocktests".
  */
-export interface Purchase {
+export interface Mocktest {
   id: string;
-  user: string | User;
-  course: string | Course;
-  pricePlan: string | Priceplan;
-  amountPaid: number;
-  currency: 'INR' | 'USD';
-  paymentStatus: 'pending' | 'success' | 'failed';
-  razorpayOrderId?: string | null;
-  razorpayPaymentId?: string | null;
-  razorpaySignature?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "mocktestpriceplans".
- */
-export interface Mocktestpriceplan {
-  id: string;
-  plan_title: string;
-  plan_id: string;
-  Frequency: string;
-  price_india: number;
-  sale_price_india?: number | null;
-  instituteId?: (string | null) | Institute;
-  active?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "examsyllabus".
- */
-export interface Examsyllabus {
-  id: string;
-  syllabus: string;
-  weightage?: number | null;
+  title: string;
+  shortDescription?: string | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  isPaid: boolean;
+  price?: number | null;
+  subject: ('Physics' | 'Mathematics' | 'Inorganic Chemistry' | 'Organic Chemistry' | 'Physical Chemistry')[];
   examCategory: string | Examcategory;
-  subject: 'Physics' | 'Mathematics' | 'Inorganic Chemistry' | 'Organic Chemistry' | 'Physical Chemistry';
-  topics: string;
-  topicsCovered?:
+  instituteId: string | Institute;
+  questionGenerationRules?: {
+    syllabusFilters?:
+      | {
+          chapter: string | Examsyllabus;
+          id?: string | null;
+        }[]
+      | null;
+    difficultyDistribution?: {
+      easy?: number | null;
+      medium?: number | null;
+      hard?: number | null;
+      'very-hard'?: number | null;
+    };
+    totalQuestions?: number | null;
+  };
+  startDate: string;
+  endDate: string;
+  showResultsAfterEndDate?: boolean | null;
+  duration?: number | null;
+  negativeMarking?: boolean | null;
+  marksPerCorrect?: number | null;
+  marksPerIncorrect?: number | null;
+  allowCalculator?: boolean | null;
+  tags?:
     | {
-        topic: string;
+        tag: string;
         id?: string | null;
       }[]
     | null;
-  instituteId: string | Institute;
-  status?: ('active' | 'draft' | 'archived') | null;
+  status?: ('draft' | 'published' | 'archived') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -520,6 +570,62 @@ export interface Examcategory {
   popular?: boolean | null;
   upcoming?: boolean | null;
   instituteId: string | Institute;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "examsyllabus".
+ */
+export interface Examsyllabus {
+  id: string;
+  syllabus: string;
+  weightage?: number | null;
+  examCategory: string | Examcategory;
+  subject: 'Physics' | 'Mathematics' | 'Inorganic Chemistry' | 'Organic Chemistry' | 'Physical Chemistry';
+  topics: string;
+  topicsCovered?:
+    | {
+        topic: string;
+        id?: string | null;
+      }[]
+    | null;
+  instituteId: string | Institute;
+  status?: ('active' | 'draft' | 'archived') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "purchases".
+ */
+export interface Purchase {
+  id: string;
+  user: string | User;
+  course: string | Course;
+  pricePlan: string | Priceplan;
+  amountPaid: number;
+  currency: 'INR' | 'USD';
+  paymentStatus: 'pending' | 'success' | 'failed';
+  razorpayOrderId?: string | null;
+  razorpayPaymentId?: string | null;
+  razorpaySignature?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mocktestpriceplans".
+ */
+export interface Mocktestpriceplan {
+  id: string;
+  plan_title: string;
+  plan_id: string;
+  Frequency: string;
+  price_india: number;
+  sale_price_india?: number | null;
+  instituteId?: (string | null) | Institute;
+  active?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -619,84 +725,25 @@ export interface Mocktestpurchase {
  */
 export interface Mocktestsubmission {
   id: string;
+  userId: string;
   mockTestId: string | Mocktest;
-  userId: string | User;
-  startedAt?: string | null;
-  submittedAt?: string | null;
-  status: 'in-progress' | 'completed' | 'expired';
+  startTime: string;
+  endTime?: string | null;
+  status: 'started' | 'in-progress' | 'submitted' | 'completed';
   responses?:
     | {
-        questionId: string | Mocktestquestion;
+        questionId?: string | null;
         selectedOption?: string | null;
         isCorrect?: boolean | null;
         timeSpent?: number | null;
         id?: string | null;
       }[]
     | null;
-  score?: number | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "mocktests".
- */
-export interface Mocktest {
-  id: string;
-  title: string;
-  shortDescription?: string | null;
-  description?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  isPaid: boolean;
-  price?: number | null;
-  subject: ('Physics' | 'Mathematics' | 'Inorganic Chemistry' | 'Organic Chemistry' | 'Physical Chemistry')[];
-  examCategory: string | Examcategory;
-  instituteId: string | Institute;
-  questionGenerationRules?: {
-    syllabusFilters?:
-      | {
-          chapter: string | Examsyllabus;
-          id?: string | null;
-        }[]
-      | null;
-    difficultyDistribution?: {
-      easy?: number | null;
-      medium?: number | null;
-      hard?: number | null;
-      'very-hard'?: number | null;
-    };
-    totalQuestions?: number | null;
-  };
-  startDate: string;
-  endDate: string;
-  showResultsAfterEndDate?: boolean | null;
-  duration?: number | null;
-  negativeMarking?: boolean | null;
-  marksPerCorrect?: number | null;
-  marksPerIncorrect?: number | null;
-  allowCalculator?: boolean | null;
-  tags?:
-    | {
-        tag: string;
-        id?: string | null;
-      }[]
-    | null;
-  status?: ('draft' | 'published' | 'archived') | null;
-  updatedAt: string;
-  createdAt: string;
+  enableAPIKey?: boolean | null;
+  apiKey?: string | null;
+  apiKeyIndex?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -893,6 +940,17 @@ export interface Mocktestquestionset {
   questionCount?: number | null;
   updatedAt: string;
   createdAt: string;
+  enableAPIKey?: boolean | null;
+  apiKey?: string | null;
+  apiKeyIndex?: string | null;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -982,6 +1040,10 @@ export interface PayloadLockedDocument {
         value: string | Priceplan;
       } | null)
     | ({
+        relationTo: 'mocktests';
+        value: string | Mocktest;
+      } | null)
+    | ({
         relationTo: 'purchases';
         value: string | Purchase;
       } | null)
@@ -1046,10 +1108,6 @@ export interface PayloadLockedDocument {
         value: string | Gcointransaction;
       } | null)
     | ({
-        relationTo: 'mocktests';
-        value: string | Mocktest;
-      } | null)
-    | ({
         relationTo: 'mocktestquestionsets';
         value: string | Mocktestquestionset;
       } | null)
@@ -1067,10 +1125,19 @@ export interface PayloadLockedDocument {
       } | null);
   globalSlug?: string | null;
   _lastEdited: {
-    user: {
-      relationTo: 'users';
-      value: string | User;
-    };
+    user:
+      | {
+          relationTo: 'users';
+          value: string | User;
+        }
+      | {
+          relationTo: 'mocktestsubmissions';
+          value: string | Mocktestsubmission;
+        }
+      | {
+          relationTo: 'mocktestquestionsets';
+          value: string | Mocktestquestionset;
+        };
     editedAt?: string | null;
   };
   isLocked?: boolean | null;
@@ -1083,10 +1150,19 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: string;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'mocktestsubmissions';
+        value: string | Mocktestsubmission;
+      }
+    | {
+        relationTo: 'mocktestquestionsets';
+        value: string | Mocktestquestionset;
+      };
   key?: string | null;
   value?:
     | {

@@ -7,22 +7,19 @@ export const MockTestQuestionSets: CollectionConfig = {
     defaultColumns: ['mocktestId', 'questionCount', 'createdAt'],
     group: 'Mock Tests',
   },
+  auth: {
+    useAPIKey: true, // Enable API key-based access
+  },
   access: {
-    read: ({ req }) => {
-      const { role, instituteId } = req.user || {};
-      if (role === 'admin') return true;
-      if (role === 'accountmanager' && instituteId) {
-        return {
-          instituteId: {
-            equals: typeof instituteId === 'string' ? instituteId : instituteId.id,
-          },
-        };
-      }
-      return false;
+    read: () => true, // ✅ Anyone can read users
+    create: () => true, // ✅ Allow user creation without login (important!)
+    update: ({ req }) => {
+      const authHeader = req.headers?.get?.('authorization') || '';
+      const isApiKey = authHeader.startsWith('API-Key');
+      const isLoggedInUser = !!req.user;
+      return isLoggedInUser || isApiKey;
     },
-    create: ({ req }) => req.user?.role === 'admin' || req.user?.role === 'accountmanager',
-    update: ({ req }) => req.user?.role === 'admin' || req.user?.role === 'accountmanager',
-    delete: ({ req }) => req.user?.role === 'admin',
+    delete: () => false, // ✅ No one can delete users
   },
   fields: [
     {

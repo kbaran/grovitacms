@@ -98,6 +98,7 @@ export default buildConfig({
     Widget1,
     Consultation,
     PricePlans,
+    MockTests,
     Purchases,
     MockTestPricePlans,
     ExamSyllabus,
@@ -114,7 +115,6 @@ export default buildConfig({
     InstituteLeads,
     DiscountCodes,
     GCoinTransactions,
-    MockTests,
     MockTestQuestionSets,
     Questions,
     {

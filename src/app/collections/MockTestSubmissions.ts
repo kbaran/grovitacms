@@ -1,28 +1,49 @@
 // collections/mocktestsubmissions.ts
 
-import { CollectionConfig } from "payload";
+import type { CollectionConfig } from "payload";
 
 export const MockTestSubmissions: CollectionConfig = {
   slug: "mocktestsubmissions",
   admin: {
     useAsTitle: "mockTestId",
-    defaultColumns: ["mockTestId", "userId", "status", "startedAt", "submittedAt"],
+    defaultColumns: ["userId", "mockTestId", "startTime", "status"],
     group: "Mock Tests",
   },
+  auth: {
+    useAPIKey: true, // Enable API key-based access
+    disableLocalStrategy: true,
+  },
   access: {
-    read: ({ req }) => {
-      if (req.user?.role === "admin") return true;
-      return {
-        userId: {
-          equals: req.user?.id,
-        },
-      };
-    },
-    create: () => true,
-    update: ({ req }) => !!req.user,
-    delete: ({ req }) => req.user?.role === "admin",
+    read: ({ req }: any) => {
+        if (!req.user) return true;
+        const { role, instituteId } = req.user;
+        if (role === 'admin') return true;
+        if (role === 'accountmanager' && instituteId) {
+          const instituteIdValue = typeof instituteId === 'string' ? instituteId : instituteId.id;
+          if (instituteIdValue) {
+            return { instituteId: { equals: instituteIdValue } };
+          }
+        }
+        return false;
+      },
+      create: ({ req }) => {
+        const authHeader = req?.headers?.get?.("authorization") || "";
+        const isApiKey = authHeader.startsWith("API-Key ");
+        return isApiKey;
+      },
+      update: ({ req }) => {
+        const authHeader = req?.headers?.get?.("authorization") || "";
+        const isApiKey = authHeader.startsWith("API-Key ");
+        return isApiKey;
+      },
+      delete: () => false,
   },
   fields: [
+    {
+      name: "userId",
+      type: "text",
+      required: true,
+    },
     {
       name: "mockTestId",
       type: "relationship",
@@ -30,34 +51,21 @@ export const MockTestSubmissions: CollectionConfig = {
       required: true,
     },
     {
-      name: "userId",
-      type: "relationship",
-      relationTo: "users",
+      name: "startTime",
+      type: "date",
       required: true,
+      defaultValue: () => new Date().toISOString(),
     },
     {
-      name: "startedAt",
+      name: "endTime",
       type: "date",
-      admin: {
-        date: {
-          pickerAppearance: "dayAndTime",
-        },
-      },
-    },
-    {
-      name: "submittedAt",
-      type: "date",
-      admin: {
-        date: {
-          pickerAppearance: "dayAndTime",
-        },
-      },
+      required: false,
     },
     {
       name: "status",
       type: "select",
-      options: ["in-progress", "completed", "expired"],
-      defaultValue: "in-progress",
+      options: ["started", "in-progress", "submitted", "completed"],
+      defaultValue: "started",
       required: true,
     },
     {
@@ -66,9 +74,7 @@ export const MockTestSubmissions: CollectionConfig = {
       fields: [
         {
           name: "questionId",
-          type: "relationship",
-          relationTo: "mocktestquestions",
-          required: true,
+          type: "text",
         },
         {
           name: "selectedOption",
@@ -77,19 +83,12 @@ export const MockTestSubmissions: CollectionConfig = {
         {
           name: "isCorrect",
           type: "checkbox",
-          defaultValue: false,
         },
         {
           name: "timeSpent",
           type: "number",
-          min: 0,
         },
       ],
-    },
-    {
-      name: "score",
-      type: "number",
-      min: 0,
     },
   ],
 };

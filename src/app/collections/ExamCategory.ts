@@ -39,7 +39,7 @@ export const ExamCategory: CollectionConfig = {
             typeof req.user.instituteId === 'string'
               ? req.user.instituteId
               : req.user.instituteId?.id;
-        } else if (req.user?.role === 'admin') {
+        } else if (req.user?.collection === 'users' && req.user.role === 'admin') {
           // ✅ Set default instituteId for admins
           data.instituteId = '6787c1652069b549e2ad1146';
         }

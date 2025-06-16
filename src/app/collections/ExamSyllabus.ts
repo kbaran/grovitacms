@@ -40,7 +40,7 @@ export const ExamSyllabus: CollectionConfig = {
           data.instituteId =
             typeof req.user.instituteId === 'string' ? req.user.instituteId : req.user.instituteId?.id;
           console.log("Setting instituteId from account manager:", data.instituteId);
-        } else if (req.user?.role === 'admin') {
+        } else if (req.user?.collection === 'users' && req.user.role === 'admin') {
           // For admins, if instituteId not provided, use a default one
           if (!data.instituteId) {
             // Use default institute ID

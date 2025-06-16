@@ -132,8 +132,10 @@ export default buildConfig({
       access: {
         read: () => true, // ✅ Allow everyone to read media
         create: ({ req }) => !!req.user, // ✅ Only logged-in users can upload
-        update: ({ req }) => req.user?.role === 'admin', // ✅ Only admins can update
-        delete: ({ req }) => req.user?.role === 'admin', // ✅ Only admins can delete
+        update: ({ req }) =>
+          req.user?.collection === 'users' && req.user.role === 'admin',
+        delete: ({ req }) =>
+          req.user?.collection === 'users' && req.user.role === 'admin',
       },
     },
   ],

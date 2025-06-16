@@ -6,26 +6,27 @@ export const CourseCategory: CollectionConfig = {
   access: {
     // Public API access for all users, including logged-out ones
     read: ({ req }: any) => {
-      // Allow public access to API for fetching course details
       if (!req.user) return true; // Public access if user is not logged in
-
-      const { role, instituteId } = req.user;
-
-      if (role === 'admin') return true;
-
-      if (role === 'accountmanager' && instituteId) {
-        const instituteIdValue =
-          typeof instituteId === 'string' ? instituteId : instituteId.id;
-
-        if (instituteIdValue) {
-          return {
-            instituteId: {
-              equals: instituteIdValue,
-            },
-          };
+    
+      if (req.user.collection === 'users') {
+        const { role, instituteId } = req.user;
+    
+        if (role === 'admin') return true;
+    
+        if (role === 'accountmanager' && instituteId) {
+          const instituteIdValue =
+            typeof instituteId === 'string' ? instituteId : instituteId.id;
+    
+          if (instituteIdValue) {
+            return {
+              instituteId: {
+                equals: instituteIdValue,
+              },
+            };
+          }
         }
       }
-
+    
       return false;
     },
     // Create access for admin and account managers only

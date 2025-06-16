@@ -10,7 +10,9 @@ export const StudentRegistrations: CollectionConfig = {
       return role === 'admin' || role === 'accountmanager';
     },
     create: () => true, // Anyone can register
-    update: ({ req }) => req?.user?.role === 'admin' || req?.user?.role === 'accountmanager',
+    update: ({ req }) =>
+  req.user?.collection === 'users' &&
+  (req.user.role === 'admin' || req.user.role === 'accountmanager'),
     delete: ({ req }) => req?.user?.role === 'admin',
   },
   admin: {

@@ -13,8 +13,12 @@ export const ExamCategory: CollectionConfig = {
       }
       return false;
     },
-    create: ({ req }) => req?.user?.role === 'admin' || req?.user?.role === 'accountmanager',
-    update: ({ req }) => req?.user?.role === 'admin' || req?.user?.role === 'accountmanager',
+    create: ({ req }) =>
+  req.user?.collection === 'users' &&
+  (req.user.role === 'admin' || req.user.role === 'accountmanager'),
+    update: ({ req }) =>
+  req.user?.collection === 'users' &&
+  (req.user.role === 'admin' || req.user.role === 'accountmanager'),
     delete: () => false,
   },
   admin: {

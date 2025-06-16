@@ -736,8 +736,19 @@ export interface Mocktestsubmission {
         selectedOption?: string | null;
         isCorrect?: boolean | null;
         timeSpent?: number | null;
+        submittedAt?: string | null;
         id?: string | null;
       }[]
+    | null;
+  score?: number | null;
+  resultSummary?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
     | null;
   updatedAt: string;
   createdAt: string;

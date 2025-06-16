@@ -1,5 +1,3 @@
-// collections/mocktestsubmissions.ts
-
 import type { CollectionConfig } from "payload";
 
 export const MockTestSubmissions: CollectionConfig = {
@@ -10,33 +8,35 @@ export const MockTestSubmissions: CollectionConfig = {
     group: "Mock Tests",
   },
   auth: {
-    useAPIKey: true, // Enable API key-based access
+    useAPIKey: true,
     disableLocalStrategy: true,
   },
   access: {
     read: ({ req }: any) => {
-        if (!req.user) return true;
-        const { role, instituteId } = req.user;
-        if (role === 'admin') return true;
-        if (role === 'accountmanager' && instituteId) {
-          const instituteIdValue = typeof instituteId === 'string' ? instituteId : instituteId.id;
-          if (instituteIdValue) {
-            return { instituteId: { equals: instituteIdValue } };
-          }
+      if (!req.user) return true;
+
+      const { role, instituteId } = req.user;
+
+      if (role === "admin") return true;
+
+      if (role === "accountmanager" && instituteId) {
+        const instituteIdValue = typeof instituteId === "string" ? instituteId : instituteId.id;
+        if (instituteIdValue) {
+          return { instituteId: { equals: instituteIdValue } };
         }
-        return false;
-      },
-      create: ({ req }) => {
-        const authHeader = req?.headers?.get?.("authorization") || "";
-        const isApiKey = authHeader.startsWith("API-Key ");
-        return isApiKey;
-      },
-      update: ({ req }) => {
-        const authHeader = req?.headers?.get?.("authorization") || "";
-        const isApiKey = authHeader.startsWith("API-Key ");
-        return isApiKey;
-      },
-      delete: () => false,
+      }
+
+      return false;
+    },
+    create: ({ req }) => {
+      const authHeader = req?.headers?.get?.("authorization") || "";
+      return authHeader.startsWith("API-Key ");
+    },
+    update: ({ req }) => {
+      const authHeader = req?.headers?.get?.("authorization") || "";
+      return authHeader.startsWith("API-Key ");
+    },
+    delete: () => false,
   },
   fields: [
     {
@@ -88,7 +88,21 @@ export const MockTestSubmissions: CollectionConfig = {
           name: "timeSpent",
           type: "number",
         },
+        {
+          name: "submittedAt",
+          type: "date", // ✅ already present — used for resume logic
+        },
       ],
+    },
+    {
+      name: "score",
+      type: "number",
+      required: false, // ✅ total score after test
+    },
+    {
+      name: "resultSummary",
+      type: "json",
+      required: false, // ✅ final summary like accuracy, attempted, correct, incorrect, skipped
     },
   ],
 };

@@ -49,7 +49,7 @@ export const Questions: CollectionConfig = {
         // Ensure data exists
         data ??= {};
 
-        if (req.user?.role === "accountmanager") {
+        if (req.user?.collection === 'users' && req.user.role === 'accountmanager') {
           if (!req.user.instituteId) {
             throw new Error("Account managers must have an associated institute.");
           }
@@ -69,7 +69,7 @@ export const Questions: CollectionConfig = {
         // Ensure data exists
         data ??= {};
 
-        if (req.user?.role === "accountmanager") {
+        if (req.user?.collection === 'users' && req.user.role === 'accountmanager') {
           data.instituteId =
             typeof req.user.instituteId === "string"
               ? req.user.instituteId
@@ -160,7 +160,7 @@ export const Questions: CollectionConfig = {
 
             data ??= {};
 
-            if (req.user?.role === "accountmanager") {
+            if (req.user?.collection === 'users' && req.user.role === 'accountmanager') {
               data.instituteId =
                 typeof req.user.instituteId === "string"
                   ? req.user.instituteId

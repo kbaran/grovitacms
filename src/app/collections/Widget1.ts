@@ -50,7 +50,7 @@ export const Widget1: CollectionConfig = {
       ({ data, req }) => {
         data ??= {};
 
-        if (req.user?.role === "accountmanager") {
+        if (req.user?.collection === 'users' && req.user.role === 'accountmanager') {
           if (!req.user.instituteId) {
             throw new Error("Account managers must have an associated institute.");
           }
@@ -69,7 +69,7 @@ export const Widget1: CollectionConfig = {
 
         data ??= {};
 
-        if (req.user?.role === "accountmanager") {
+        if (req.user?.collection === 'users' && req.user.role === 'accountmanager') {
           data.instituteId =
             typeof req.user.instituteId === "string"
               ? req.user.instituteId
@@ -136,7 +136,7 @@ export const Widget1: CollectionConfig = {
           ({ data, req }) => {
             data ??= {};
 
-            if (req.user?.role === "accountmanager") {
+            if (req.user?.collection === 'users' && req.user.role === 'accountmanager') {
               data.instituteId =
                 typeof req.user.instituteId === "string"
                   ? req.user.instituteId

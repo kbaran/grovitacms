@@ -7,19 +7,22 @@ export const DiscountCodes: CollectionConfig = {
     create: ({ req }) => {
       const authHeader = req.headers?.get?.('authorization') || '';
       const isApiKey = authHeader.startsWith('API-Key');
-      const isLoggedInUser = !!req.user && req.user.role === 'admin';
+      const isLoggedInUser =
+  req.user?.collection === 'users' && req.user.role === 'admin';
       return isLoggedInUser || isApiKey;
     },
     update: ({ req }) => {
       const authHeader = req.headers?.get?.('authorization') || '';
       const isApiKey = authHeader.startsWith('API-Key');
-      const isLoggedInUser = !!req.user && req.user.role === 'admin';
+      const isLoggedInUser =
+  req.user?.collection === 'users' && req.user.role === 'admin';
       return isLoggedInUser || isApiKey;
     },
     delete: ({ req }) => {
       const authHeader = req.headers?.get?.('authorization') || '';
       const isApiKey = authHeader.startsWith('API-Key');
-      const isLoggedInUser = !!req.user && req.user.role === 'admin';
+      const isLoggedInUser =
+  req.user?.collection === 'users' && req.user.role === 'admin';
       return isLoggedInUser || isApiKey;
     },
   },

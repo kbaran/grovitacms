@@ -5,7 +5,9 @@ export const isAdminOrManager: Access = ({ req: { user } }) => {
     return false; // Not a valid user from the users collection
   }
 
-  const { role, instituteId } = user;
+  // ✅ Now it's safe to destructure
+  const role = user.role;
+  const instituteId = user.instituteId;
 
   // Full access for admin
   if (role === 'admin') {
@@ -21,7 +23,7 @@ export const isAdminOrManager: Access = ({ req: { user } }) => {
 
     return {
       instituteId: {
-        equals: instituteId,
+        equals: typeof instituteId === 'string' ? instituteId : instituteId.id,
       },
     };
   }

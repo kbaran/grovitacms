@@ -4,7 +4,7 @@ export const Questions: CollectionConfig = {
   slug: "questions",
   access: {
     read: ({ req: { user } }) => {
-      if (!user) return false;
+      if (!user || user.collection !== 'users') return false;
 
       const { role, instituteId } = user;
 
@@ -27,32 +27,37 @@ export const Questions: CollectionConfig = {
 
       return false;
     },
-    create: ({ req: { user } }) => {
-      return user?.role === "admin" || user?.role === "accountmanager";
-    },
+
+    create: ({ req: { user } }) =>
+      user?.collection === 'users' &&
+      (user.role === "admin" || user.role === "accountmanager"),
+
     update: ({ req: { user } }) => {
-      if (!user) return false;
-      if (user.role === "admin" || user?.role === "accountmanager") return true;
+      if (!user || user.collection !== 'users') return false;
+      if (user.role === "admin" || user.role === "accountmanager") return true;
       return false;
     },
+
     delete: () => false,
   },
+
   admin: {
     useAsTitle: "question",
   },
+
   hooks: {
     beforeValidate: [
       ({ data, req }) => {
         console.log("Before Validate - Incoming Data:", data);
         console.log("Logged-In User:", req.user);
 
-        // Ensure data exists
         data ??= {};
 
         if (req.user?.collection === 'users' && req.user.role === 'accountmanager') {
           if (!req.user.instituteId) {
             throw new Error("Account managers must have an associated institute.");
           }
+
           data.instituteId =
             typeof req.user.instituteId === "string"
               ? req.user.instituteId
@@ -62,11 +67,11 @@ export const Questions: CollectionConfig = {
         return data;
       },
     ],
+
     beforeChange: [
       ({ data, req }) => {
         console.log("Before Change - Modified Data:", data);
 
-        // Ensure data exists
         data ??= {};
 
         if (req.user?.collection === 'users' && req.user.role === 'accountmanager') {
@@ -80,6 +85,7 @@ export const Questions: CollectionConfig = {
       },
     ],
   },
+
   fields: [
     {
       name: "course",
@@ -149,9 +155,9 @@ export const Questions: CollectionConfig = {
       label: "Institute",
       admin: {
         position: "sidebar",
-        condition: (_, { user }) => {
-          return !!user?.instituteId || user?.role === "admin";
-        },
+        condition: (_, { user }) =>
+          user?.collection === 'users' &&
+          (!!user?.instituteId || user?.role === "admin"),
       },
       hooks: {
         beforeValidate: [

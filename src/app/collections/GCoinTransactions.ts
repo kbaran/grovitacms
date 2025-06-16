@@ -13,12 +13,20 @@ export const GCoinTransactions: CollectionConfig = {
     create: ({ req }) => {
       const authHeader = req.headers?.get?.('authorization') || '';
       const isApiKey = authHeader.startsWith('API-Key');
-      return req?.user?.role === 'admin' || req?.user?.role === 'accountmanager' || isApiKey;
+      return (
+  (req.user?.collection === 'users' &&
+    (req.user.role === 'admin' || req.user.role === 'accountmanager')) ||
+  isApiKey
+);
     },
     update: ({ req }) => {
       const authHeader = req.headers?.get?.('authorization') || '';
       const isApiKey = authHeader.startsWith('API-Key');
-      return req?.user?.role === 'admin' || req?.user?.role === 'accountmanager' || isApiKey;
+      return (
+  (req.user?.collection === 'users' &&
+    (req.user.role === 'admin' || req.user.role === 'accountmanager')) ||
+  isApiKey
+);
     },
     delete: ({ req }) => req?.user?.role === 'admin',
   },

@@ -89,7 +89,8 @@ export const UserResponses: CollectionConfig = {
     },
     create: ({ req }) => !!req.user,
     update: ({ req }) => false,
-    delete: ({ req }) => req?.user?.role === 'admin',
+    delete: ({ req }) =>
+  req.user?.collection === 'users' && req.user.role === 'admin',
   },
   admin: {
     useAsTitle: 'questionId',

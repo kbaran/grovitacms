@@ -13,7 +13,8 @@ export const InstituteLeads: CollectionConfig = {
     update: ({ req }) =>
   req.user?.collection === 'users' &&
   (req.user.role === 'admin' || req.user.role === 'accountmanager'),
-    delete: ({ req }) => req?.user?.role === 'admin',
+    delete: ({ req }) =>
+  req.user?.collection === 'users' && req.user.role === 'admin',
   },
   admin: {
     useAsTitle: 'name',

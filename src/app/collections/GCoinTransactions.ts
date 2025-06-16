@@ -28,7 +28,8 @@ export const GCoinTransactions: CollectionConfig = {
   isApiKey
 );
     },
-    delete: ({ req }) => req?.user?.role === 'admin',
+    delete: ({ req }) =>
+  req.user?.collection === 'users' && req.user.role === 'admin',
   },
 
   admin: { useAsTitle: 'id' },

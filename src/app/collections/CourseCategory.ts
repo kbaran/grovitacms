@@ -177,7 +177,7 @@ export const CourseCategory: CollectionConfig = {
           ({ data, req }) => {
             data ??= {}; // Ensure data exists
 
-            if (req.user?.role === 'accountmanager') {
+            if (req.user?.collection === 'users' && req.user?.role === 'accountmanager') {
               data.instituteId =
                 typeof req.user.instituteId === 'string'
                   ? req.user.instituteId

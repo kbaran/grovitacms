@@ -17,7 +17,9 @@ export const MockTestQuestions: CollectionConfig = {
       }
       return false;
     },
-    create: ({ req }) => req?.user?.role === 'admin' || req?.user?.role === 'accountmanager',
+    create: ({ req }) =>
+      req.user?.collection === 'users' &&
+      (req.user.role === 'admin' || req.user.role === 'accountmanager'),
     
     // ✅ UPDATED update access rule
     update: ({ req }) => {
@@ -37,7 +39,7 @@ export const MockTestQuestions: CollectionConfig = {
       ({ data, req }) => {
         data ??= {};
 
-        if (req.user?.role === 'accountmanager') {
+        if (req.user?.collection === 'users' && req.user?.role === 'accountmanager') {
           if (!req.user.instituteId) {
             throw new Error('Account managers must have an associated institute.');
           }

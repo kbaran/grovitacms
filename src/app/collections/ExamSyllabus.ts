@@ -13,8 +13,13 @@ export const ExamSyllabus: CollectionConfig = {
       }
       return false;
     },
-    create: ({ req }) => req?.user?.role === 'admin' || req?.user?.role === 'accountmanager',
-    update: ({ req }) => req?.user?.role === 'admin' || req?.user?.role === 'accountmanager',
+    create: ({ req }) =>
+      req.user?.collection === 'users' &&
+      (req.user.role === 'admin' || req.user.role === 'accountmanager'),
+    
+    update: ({ req }) =>
+      req.user?.collection === 'users' &&
+      (req.user.role === 'admin' || req.user.role === 'accountmanager'),
     delete: () => false,
   },
   admin: {
@@ -28,7 +33,7 @@ export const ExamSyllabus: CollectionConfig = {
         data ??= {};
 
         // Always ensure instituteId is set
-        if (req.user?.role === 'accountmanager') {
+        if (req.user?.collection === 'users' && req.user?.role === 'accountmanager') {
           if (!req.user.instituteId) {
             throw new Error('Account managers must have an associated institute.');
           }

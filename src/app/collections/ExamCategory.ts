@@ -27,7 +27,7 @@ export const ExamCategory: CollectionConfig = {
         console.log('Logged-In User:', req.user);
         data ??= {};
     
-        if (req.user?.role === 'accountmanager') {
+        if (req.user?.collection === 'users' && req.user?.role === 'accountmanager') {
           if (!req.user.instituteId) {
             throw new Error('Account managers must have an associated institute.');
           }

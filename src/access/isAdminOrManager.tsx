@@ -1,36 +1,31 @@
-import { Access } from 'payload'
+import { Access } from 'payload';
 
 export const isAdminOrManager: Access = ({ req: { user } }) => {
-  if (!user) {
-    return false // Deny access if no user is logged in
+  if (!user || user.collection !== 'users') {
+    return false; // Not a valid user from the users collection
   }
 
-  const { role, instituteId } = user
+  const { role, instituteId } = user;
 
   // Full access for admin
-  if (role=='admin') {
-    return true // Allow admin full access
+  if (role === 'admin') {
+    return true;
   }
 
-  // Restrict account managers to their own institute's data
+  // Restrict account managers and siteusers to their institute
   if (role === 'accountmanager' || role === 'siteusers') {
-    console.log('🚀 Brij  ~  file: isAdminOrManager.tsx:18 ~  o:', user, instituteId)
-
     if (!instituteId) {
-      // If instituteId is missing, deny access
-      console.log("🚀 ~ file: isAdminOrManager.tsx ~ instituteId", instituteId);
-      return false
+      console.warn("⚠️ Access denied: Missing instituteId for role", role);
+      return false;
     }
-    console.log('🚀 Brij  ~  file: isAdminOrManager.tsx:2 ~  o:', user, instituteId)
-    return true
 
     return {
       instituteId: {
-        equals: instituteId, // Match the Object ID directly
+        equals: instituteId,
       },
-    }
+    };
   }
 
-  // Deny access for all other roles
-  return false
-}
+  // All other roles denied
+  return false;
+};

@@ -111,7 +111,10 @@ export const UserLearningResume: CollectionConfig = {
                 const data = topics[topic];
                 const accuracy = data.correct / data.total;
                 const avgTime = data.totalTime / data.total;
-                const masteryScore = Math.round((accuracy * 60 + (1 - avgTime / 120) * 20));
+                const masteryScore =
+                  data.correct === 0
+                    ? 0
+                    : Math.round((accuracy * 60 + (1 - avgTime / 120) * 20));
 
                 topicStats.push({
                   topic,

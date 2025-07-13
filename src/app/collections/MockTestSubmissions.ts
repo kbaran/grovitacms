@@ -7,10 +7,6 @@ export const MockTestSubmissions: CollectionConfig = {
     defaultColumns: ["userId", "mockTestId", "startTime", "status"],
     group: "Mock Tests",
   },
-  auth: {
-    useAPIKey: true,
-    disableLocalStrategy: true,
-  },
   access: {
     read: ({ req }: any) => {
       if (!req.user) return true;

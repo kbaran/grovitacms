@@ -9,8 +9,6 @@
 export interface Config {
   auth: {
     users: UserAuthOperations;
-    mocktestsubmissions: MocktestsubmissionAuthOperations;
-    mocktestquestionsets: MocktestquestionsetAuthOperations;
   };
   collections: {
     users: User;
@@ -51,54 +49,11 @@ export interface Config {
   };
   globals: {};
   locale: null;
-  user:
-    | (User & {
-        collection: 'users';
-      })
-    | (Mocktestsubmission & {
-        collection: 'mocktestsubmissions';
-      })
-    | (Mocktestquestionset & {
-        collection: 'mocktestquestionsets';
-      });
+  user: User & {
+    collection: 'users';
+  };
 }
 export interface UserAuthOperations {
-  forgotPassword: {
-    email: string;
-    password: string;
-  };
-  login: {
-    email: string;
-    password: string;
-  };
-  registerFirstUser: {
-    email: string;
-    password: string;
-  };
-  unlock: {
-    email: string;
-    password: string;
-  };
-}
-export interface MocktestsubmissionAuthOperations {
-  forgotPassword: {
-    email: string;
-    password: string;
-  };
-  login: {
-    email: string;
-    password: string;
-  };
-  registerFirstUser: {
-    email: string;
-    password: string;
-  };
-  unlock: {
-    email: string;
-    password: string;
-  };
-}
-export interface MocktestquestionsetAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -752,9 +707,6 @@ export interface Mocktestsubmission {
     | null;
   updatedAt: string;
   createdAt: string;
-  enableAPIKey?: boolean | null;
-  apiKey?: string | null;
-  apiKeyIndex?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -951,17 +903,6 @@ export interface Mocktestquestionset {
   questionCount?: number | null;
   updatedAt: string;
   createdAt: string;
-  enableAPIKey?: boolean | null;
-  apiKey?: string | null;
-  apiKeyIndex?: string | null;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1136,19 +1077,10 @@ export interface PayloadLockedDocument {
       } | null);
   globalSlug?: string | null;
   _lastEdited: {
-    user:
-      | {
-          relationTo: 'users';
-          value: string | User;
-        }
-      | {
-          relationTo: 'mocktestsubmissions';
-          value: string | Mocktestsubmission;
-        }
-      | {
-          relationTo: 'mocktestquestionsets';
-          value: string | Mocktestquestionset;
-        };
+    user: {
+      relationTo: 'users';
+      value: string | User;
+    };
     editedAt?: string | null;
   };
   isLocked?: boolean | null;
@@ -1161,19 +1093,10 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: string;
-  user:
-    | {
-        relationTo: 'users';
-        value: string | User;
-      }
-    | {
-        relationTo: 'mocktestsubmissions';
-        value: string | Mocktestsubmission;
-      }
-    | {
-        relationTo: 'mocktestquestionsets';
-        value: string | Mocktestquestionset;
-      };
+  user: {
+    relationTo: 'users';
+    value: string | User;
+  };
   key?: string | null;
   value?:
     | {
